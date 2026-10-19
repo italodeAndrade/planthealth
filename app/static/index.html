@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroSaúde – Monitoramento Inteligente de Plantas (PjBL2 / TDE2)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09130d;
+      --surface: #102217;
+      --surface-border: #1a3826;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-glow: rgba(16, 185, 129, 0.25);
+      --text: #f0fdf4;
+      --text-muted: #86efac;
+      --text-sub: #9ca3af;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --card-bg: rgba(16, 34, 23, 0.90);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top right, #112d1c, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--surface-border);
+      margin-bottom: 24px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #10b981, #047857);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 25px var(--primary-glow);
+    }
+    .brand h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .brand p { font-size: 13px; color: var(--text-sub); }
+
+    .tag-academic {
+      padding: 6px 14px;
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .alert-banner {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fde68a;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #a7f3d0;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #091710;
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+      margin-bottom: 14px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    button {
+      width: 100%;
+      background: var(--primary);
+      color: #042f1d;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+    .orientacao-fotos {
+      background: #091710;
+      border: 1px dashed var(--surface-border);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .relatorio-box {
+      background: rgba(9, 23, 16, 0.95);
+      border-left: 4px solid var(--primary);
+      padding: 18px;
+      border-radius: 8px;
+      white-space: pre-line;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .status-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .status-saudavel { background: #065f46; color: #a7f3d0; }
+    .status-doenca { background: #7f1d1d; color: #fca5a5; }
+    .status-incerto { background: #78350f; color: #fde68a; }
+
+    .fotos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .foto-card {
+      background: #091710;
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .foto-card img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🌱</div>
+        <div>
+          <h1>AgroSaúde</h1>
+          <p>Monitoramento Semanal de Fitossanidade por Visão Computacional & LLM</p>
+        </div>
+      </div>
+      <div class="tag-academic">PUCPR • PjBL2 & TDE2</div>
+    </header>
+
+    <div class="alert-banner">
+      ⚠️ <strong>Orientações Técnicas (Seção 7 ABNT):</strong> Fotografe <strong>uma folha por imagem</strong>, em <strong>fundo liso/neutro</strong> e com <strong>boa iluminação</strong>. O sistema atua como ferramenta de suporte orientativo e não substitui o laudo de um profissional agrônomo.
+    </div>
+
+    <div class="grid">
+      <!-- Coluna Esquerda: Plantios e Controles -->
+      <aside>
+        <div class="card">
+          <h2>🪴 Novo Plantio (Chat)</h2>
+          <form id="formPlantio">
+            <label for="plantaSelect">Cultura</label>
+            <select id="plantaSelect" required>
+              <option value="batata">Batata (Solanum tuberosum)</option>
+              <option value="tomate">Tomate (Solanum lycopersicum)</option>
+              <option value="milho">Milho (Zea mays)</option>
+            </select>
+
+            <label for="apelidoInput">Identificação / Canteiro</label>
+            <input type="text" id="apelidoInput" placeholder="Ex: Canteiro Estufa 2">
+
+            <label for="dataPlantio">Data do Plantio</label>
+            <input type="date" id="dataPlantio" required>
+
+            <button type="submit">Cadastrar Plantio</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>📋 Plantio Ativo</h2>
+          <select id="selectPlantioAtivo" onchange="carregarPlantio()">
+            <option value="">Carregando plantios...</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <h2>⚡ Teste Direto de LLM (TDE2)</h2>
+          <form id="formLLMDireto">
+            <label>Cultura</label>
+            <input type="text" id="llmPlanta" value="Batata">
+            <label>Semana do Ciclo</label>
+            <input type="number" id="llmSemana" value="3" min="0">
+            <label>Status</label>
+            <select id="llmStatus">
+              <option value="doenca">Doença detectada</option>
+              <option value="saudavel">Saudável</option>
+              <option value="incerto">Incerto (baixa confiança)</option>
+            </select>
+            <label>Folhas com Indício (0 a 3)</label>
+            <input type="number" id="llmFolhas" min="0" max="3" value="2">
+            <button type="submit" style="background: #2563eb; color: white;">Gerar Relatório</button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Coluna Principal: Upload e Diagnóstico das 3 Folhas -->
+      <main>
+        <div class="card">
+          <h2>📸 Envio Semanal das 3 Fotografias (Seção 4.4 ABNT)</h2>
+          
+          <div class="orientacao-fotos">
+            📌 <strong>Regra de Combinação:</strong> O sistema analisa 3 folhas distintas. Se alguma foto tiver confiança inferior ao limiar calibrado (70%), o status será marcado como <em>incerto</em> solicitando novas fotos para segurança do produtor.
+          </div>
+
+          <form id="formUpload" enctype="multipart/form-data">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+              <div>
+                <label>Semana desde o plantio</label>
+                <input type="number" id="upSemana" min="0" value="3" required>
+              </div>
+              <div>
+                <label>Altura estimada (cm)</label>
+                <input type="number" id="upAltura" step="0.5" placeholder="Ex: 24.0">
+              </div>
+              <div>
+                <label>Nº de Folhas Total</label>
+                <input type="number" id="upNumFolhas" placeholder="Ex: 12">
+              </div>
+            </div>
+
+            <label>Selecione exatamente 3 fotos das folhas:</label>
+            <input type="file" id="upFotos" name="fotos" multiple accept="image/*" required>
+
+            <button type="submit" id="btnEnviarFotos">Submeter para Visão Computacional & LLM</button>
+          </form>
+        </div>
+
+        <!-- Card de Resultados -->
+        <div class="card" id="cardResultado" style="display: none;">
+          <h2>📊 Diagnóstico do Sistema Integrado</h2>
+          
+          <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;">
+            <div>Status: <span id="resStatus" class="status-tag"></span></div>
+            <div>Folhas com patógeno: <strong id="resFolhas">0</strong> de 3</div>
+            <div id="resFaseBox" style="color: #6ee7b7; font-size: 13px;"></div>
+          </div>
+
+          <div id="resOrientacao" style="color: #cbd5e1; font-size: 13px; margin-bottom: 12px; font-style: italic;"></div>
+
+          <div class="fotos-grid" id="resFotosContainer"></div>
+
+          <h3 style="margin: 22px 0 8px 0; font-size: 15px; color: #a7f3d0;">📝 Relatório Explicativo (Ollama - Llama 3.2):</h3>
+          <div class="relatorio-box" id="resRelatorio"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('dataPlantio').valueAsDate = new Date();
+
+    async function atualizarListaPlantios() {
+      try {
+        const res = await fetch('/api/plantios');
+        const plantios = await res.json();
+        const sel = document.getElementById('selectPlantioAtivo');
+        sel.innerHTML = '';
+        if (plantios.length === 0) {
+          sel.innerHTML = '<option value="">Nenhum plantio cadastrado</option>';
+          return;
+        }
+        plantios.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `#${p.id} - ${p.planta_nome} (${p.apelido || 'Sem apelido'})`;
+          sel.appendChild(opt);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById('formPlantio').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dados = {
+        planta: document.getElementById('plantaSelect').value,
+        apelido: document.getElementById('apelidoInput').value,
+        data_plantio: document.getElementById('dataPlantio').value,
+      };
+      const res = await fetch('/api/plantios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      if (res.ok) {
+        alert('Plantio cadastrado com sucesso!');
+        await atualizarListaPlantios();
+      }
+    });
+
+    document.getElementById('formUpload').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const plantioId = document.getElementById('selectPlantioAtivo').value;
+      if (!plantioId) {
+        alert('Selecione um plantio ativo primeiro.');
+        return;
+      }
+
+      const files = document.getElementById('upFotos').files;
+      if (files.length !== 3) {
+        alert('Por favor selecione exatamente 3 fotos distintas.');
+        return;
+      }
+
+      const btn = document.getElementById('btnEnviarFotos');
+      btn.textContent = 'Processando Classificação & Gerando Relatório...';
+      btn.disabled = true;
+
+      const fd = new FormData();
+      fd.append('plantio_id', plantioId);
+      fd.append('semana', document.getElementById('upSemana').value);
+      if (document.getElementById('upAltura').value) {
+        fd.append('altura_cm', document.getElementById('upAltura').value);
+      }
+      if (document.getElementById('upNumFolhas').value) {
+        fd.append('n_folhas', document.getElementById('upNumFolhas').value);
+      }
+      fd.append('limiar', '0.70');
+      for (let i = 0; i < files.length; i++) {
+        fd.append('fotos', files[i]);
+      }
+
+      try {
+        const res = await fetch('/api/atualizacoes/upload', {
+          method: 'POST',
+          body: fd
+        });
+        const data = await res.json();
+        if (res.ok) {
+          exibirResultado(data);
+        } else {
+          alert(data.detail || 'Erro ao processar diagnóstico.');
+        }
+      } catch (err) {
+        alert('Erro ao comunicar com a API: ' + err.message);
+      } finally {
+        btn.textContent = 'Submeter para Visão Computacional & LLM';
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('formLLMDireto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dados = {
+        planta: document.getElementById('llmPlanta').value,
+        semana: parseInt(document.getElementById('llmSemana').value),
+        status: document.getElementById('llmStatus').value,
+        folhas_doentes: parseInt(document.getElementById('llmFolhas').value)
+      };
+      const res = await fetch('/api/gerar-relatorio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      const data = await res.json();
+      document.getElementById('cardResultado').style.display = 'block';
+      document.getElementById('resStatus').textContent = dados.status;
+      document.getElementById('resStatus').className = 'status-tag status-' + dados.status;
+      document.getElementById('resFolhas').textContent = dados.folhas_doentes;
+      document.getElementById('resFaseBox').textContent = data.fase_esperada ? 'Fase Fenológica: ' + data.fase_esperada : '';
+      document.getElementById('resOrientacao').textContent = '';
+      document.getElementById('resFotosContainer').innerHTML = '';
+      document.getElementById('resRelatorio').textContent = data.relatorio_ia;
+    });
+
+    function exibirResultado(data) {
+      const card = document.getElementById('cardResultado');
+      card.style.display = 'block';
+      const tag = document.getElementById('resStatus');
+      tag.textContent = data.status;
+      tag.className = 'status-tag status-' + data.status;
+      document.getElementById('resFolhas').textContent = data.folhas_com_doenca;
+      document.getElementById('resFaseBox').textContent = data.fase_esperada ? 'Fase Esperada: ' + data.fase_esperada : '';
+      document.getElementById('resOrientacao').textContent = data.orientacao_adicional || '';
+      document.getElementById('resRelatorio').textContent = data.relatorio;
+
+      const container = document.getElementById('resFotosContainer');
+      container.innerHTML = '';
+      data.fotos.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'foto-card';
+        div.innerHTML = `
+          <img src="${f.caminho}" alt="Folha ${f.ordem}">
+          <div><strong>Folha ${f.ordem}</strong></div>
+          <div style="color: #6ee7b7; font-size: 11px; margin: 2px 0;">${f.classe_prevista}</div>
+          <div style="color: #94a3b8; font-size: 11px;">Confiança: ${(f.confianca * 100).toFixed(1)}%</div>
+        `;
+        container.appendChild(div);
+      });
+      card.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function carregarPlantio() {}
+
+    atualizarListaPlantios();
+  </script>
+</body>
+</html>

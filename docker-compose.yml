@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agro_saude_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=agro_saude
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    volumes:
+      - ./dados/uploads:/app/dados/uploads
+      - ./banco:/app/banco
+      - ./modelos:/app/modelos
+    depends_on:
+      - mongo
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7.0
+    container_name: agro_saude_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./banco/mongo_init.js:/docker-entrypoint-initdb.d/mongo_init.js:ro
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
