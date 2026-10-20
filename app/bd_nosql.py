@@ -44,6 +44,7 @@ def salvar_atualizacao_nosql(dados: Dict[str, Any]) -> Optional[str]:
 
     try:
         doc = {
+            "plantio_id": dados.get("plantio_id"),
             "plantio_id_sqlite": dados.get("plantio_id"),
             "enviado_em": datetime.now(timezone.utc),
             "semana": int(dados.get("semana", 0)),
@@ -81,8 +82,10 @@ def salvar_mensagem_chat(
         return None
 
     try:
+        pid = int(plantio_id) if str(plantio_id).isdigit() else plantio_id
         doc = {
-            "plantio_id_sqlite": int(plantio_id) if str(plantio_id).isdigit() else plantio_id,
+            "plantio_id": pid,
+            "plantio_id_sqlite": pid,
             "atualizacao_id": atualizacao_id,
             "papel": papel,
             "texto": texto,

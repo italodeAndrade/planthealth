@@ -10,7 +10,14 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from app.bd_nosql import salvar_atualizacao_nosql, salvar_log_treino_colab, salvar_mensagem_chat
+import ollama
+from app.bd_nosql import (
+    DB_NAME,
+    obter_cliente,
+    salvar_atualizacao_nosql,
+    salvar_log_treino_colab,
+    salvar_mensagem_chat,
+)
 from app.bd_relacional import (
     criar_plantio,
     inicializar_banco,
@@ -25,7 +32,15 @@ from app.bd_relacional import (
     obter_plantio,
 )
 from app.inferencia import classificar_foto, combinar_diagnosticos
-from app.llm import gerar_relatorio_agronomico
+from app.llm import (
+    OLLAMA_HOST,
+    OLLAMA_MODEL,
+    chat_generico_ollama,
+    gerar_relatorio_agronomico,
+    listar_modelos_ollama,
+    obter_cliente_ollama,
+    responder_chat_agronomico,
+)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_DIR = os.path.join(BASE_DIR, "app", "static")
@@ -96,6 +111,18 @@ class LogTreinoColab(BaseModel):
     caminho_pesos: Optional[str] = Field("modelos/batata.onnx", example="modelos/batata.onnx")
 
 
+class OllamaChatRequest(BaseModel):
+    prompt: Optional[str] = Field(None, example="Como prevenir requeima da batata sem produtos químicos?")
+    mensagens: Optional[List[Dict[str, str]]] = Field(None, example=[{"role": "user", "content": "Olá assistente"}])
+    modelo: Optional[str] = Field(None, example="llama3.2")
+
+
+class OllamaPromptRequest(BaseModel):
+    prompt: str = Field(..., example="Explique como fazer rotação de culturas na horta familiar.")
+    modelo: Optional[str] = Field(None, example="llama3.2")
+    system: Optional[str] = Field(None, example="Você é um agrônomo especialista do sistema AgroSaúde.")
+
+
 # Rotas
 @app.get("/")
 async def raiz():
@@ -103,6 +130,70 @@ async def raiz():
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return {"status": "ok", "mensagem": "API AgroSaúde em operação"}
+
+
+@app.get("/api/health")
+async def health_check():
+    # 1. SQLite
+    sqlite_ok = False
+    plantas_total = 0
+    try:
+        plantas = listar_plantas()
+        plantas_total = len(plantas)
+        sqlite_ok = True
+    except Exception as e:
+        sqlite_erro = str(e)
+
+    # 2. MongoDB
+    mongo_ok = False
+    mongo_colecoes = []
+    mongo_erro = None
+    try:
+        cliente_mongo = obter_cliente()
+        if cliente_mongo is not None:
+            cliente_mongo.admin.command("ping")
+            bd = cliente_mongo[DB_NAME]
+            mongo_colecoes = bd.list_collection_names()
+            mongo_ok = True
+        else:
+            mongo_erro = "Cliente MongoDB retornou None"
+    except Exception as e:
+        mongo_erro = str(e)
+
+    # 3. Ollama (GPU local)
+    ollama_ok = False
+    modelos_ollama = []
+    ollama_erro = None
+    try:
+        client = ollama.Client(host=OLLAMA_HOST) if OLLAMA_HOST else ollama
+        resp = client.list()
+        if hasattr(resp, "models"):
+            modelos_ollama = [m.model for m in resp.models]
+        elif isinstance(resp, dict) and "models" in resp:
+            modelos_ollama = [m.get("name", m.get("model")) for m in resp["models"]]
+        ollama_ok = True
+    except Exception as e:
+        ollama_erro = str(e)
+
+    return {
+        "status": "operacional" if (sqlite_ok and mongo_ok and ollama_ok) else "degradado",
+        "sqlite": {
+            "conectado": sqlite_ok,
+            "plantas_cadastradas": plantas_total,
+        },
+        "mongodb": {
+            "conectado": mongo_ok,
+            "colecoes": mongo_colecoes,
+            "erro": mongo_erro,
+        },
+        "ollama": {
+            "conectado": ollama_ok,
+            "host": OLLAMA_HOST or "default",
+            "modelo_padrao": OLLAMA_MODEL,
+            "modelos_disponiveis": modelos_ollama,
+            "erro": ollama_erro,
+        },
+    }
 
 
 @app.get("/api/plantas")
@@ -267,21 +358,97 @@ async def api_gerar_relatorio(dados: AtualizacaoManual):
     }
 
 
+@app.get("/api/ollama/status")
+async def get_ollama_status():
+    """Verifica conectividade direta com o Ollama na GPU."""
+    try:
+        modelos = listar_modelos_ollama()
+        return {
+            "status": "online",
+            "host": OLLAMA_HOST or "http://127.0.0.1:11434",
+            "modelo_padrao": OLLAMA_MODEL,
+            "modelos_disponiveis": modelos,
+            "total_modelos": len(modelos),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Ollama inacessível: {e}")
+
+
+@app.get("/api/ollama/modelos")
+async def get_ollama_modelos():
+    """Lista todos os modelos instalados no Ollama."""
+    modelos = listar_modelos_ollama()
+    return {"modelos": modelos}
+
+
+@app.post("/api/ollama/chat")
+async def post_ollama_chat(req: OllamaChatRequest):
+    """Chat direto com a LLM do Ollama (passando prompt ou array de mensagens)."""
+    mensagens = req.mensagens or []
+    if req.prompt:
+        mensagens.append({"role": "user", "content": req.prompt})
+
+    if not mensagens:
+        raise HTTPException(status_code=400, detail="Envie 'prompt' ou 'mensagens'.")
+
+    try:
+        resposta = chat_generico_ollama(mensagens=mensagens, modelo=req.modelo)
+        return {
+            "sucesso": True,
+            "modelo_usado": req.modelo or OLLAMA_MODEL,
+            "resposta": resposta,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao comunicar com o Ollama: {e}")
+
+
+@app.post("/api/ollama/gerar")
+async def post_ollama_gerar(req: OllamaPromptRequest):
+    """Gera texto a partir de prompt com system opcional."""
+    mensagens = []
+    if req.system:
+        mensagens.append({"role": "system", "content": req.system})
+    mensagens.append({"role": "user", "content": req.prompt})
+
+    try:
+        resposta = chat_generico_ollama(mensagens=mensagens, modelo=req.modelo)
+        return {
+            "sucesso": True,
+            "modelo_usado": req.modelo or OLLAMA_MODEL,
+            "resposta": resposta,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar com Ollama: {e}")
+
+
 @app.post("/api/chat")
 async def enviar_mensagem(dados: MensagemChat):
-    """Chat com o assistente sobre o plantio."""
+    """
+    Chat com o assistente agronômico inteligente sobre o plantio:
+    - Salva pergunta no SQLite e MongoDB.
+    - Consulta histórico de mensagens do plantio.
+    - Chama o Ollama (Llama 3.2 na GPU) com regras agronômicas éticas.
+    - Salva resposta gerada no SQLite e MongoDB.
+    """
     plantio = obter_plantio(dados.plantio_id)
     if not plantio:
         raise HTTPException(status_code=404, detail="Plantio não encontrado")
 
+    # 1. Salva pergunta do usuário
     inserir_mensagem(dados.plantio_id, papel="usuario", texto=dados.texto)
     salvar_mensagem_chat(dados.plantio_id, papel="usuario", texto=dados.texto)
 
-    resposta = (
-        f"Entendido sobre o seu plantio de {plantio['planta_nome']}. "
-        "Mantenha o monitoramento semanal com fotos das folhas e siga boas práticas culturais. "
-        "Não aplique defensivos químicos sem a receita e o diagnóstico presencial de um agrônomo."
+    # 2. Obtém histórico recente do plantio
+    historico = listar_mensagens(dados.plantio_id)
+
+    # 3. Gera resposta inteligente com Ollama
+    resposta = responder_chat_agronomico(
+        planta_nome=plantio.get("planta_nome") or plantio.get("planta", "cultura"),
+        mensagem_usuario=dados.texto,
+        historico_mensagens=historico,
     )
+
+    # 4. Salva resposta no SQLite e MongoDB
     inserir_mensagem(dados.plantio_id, papel="assistente", texto=resposta)
     salvar_mensagem_chat(dados.plantio_id, papel="assistente", texto=resposta)
 

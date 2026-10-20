@@ -206,9 +206,60 @@
       width: 100%;
       height: 110px;
       object-fit: cover;
-      border-radius: 6px;
-      margin-bottom: 6px;
+    .badge-ollama {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(37, 99, 235, 0.35);
+      color: #93c5fd;
     }
+    .badge-ollama.online {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+    .badge-ollama.offline {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-bottom: 14px;
+    }
+    .chat-msg {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      max-width: 85%;
+      word-break: break-word;
+    }
+    .chat-msg-usuario {
+      align-self: flex-end;
+      background: #047857;
+      color: #f0fdf4;
+      border-bottom-right-radius: 2px;
+    }
+    .chat-msg-assistente {
+      align-self: flex-start;
+      background: rgba(16, 34, 23, 0.95);
+      border: 1px solid var(--surface-border);
+      color: #e2e8f0;
+      border-bottom-left-radius: 2px;
+      white-space: pre-line;
+    }
+    .chat-msg-assistente strong { color: #a7f3d0; }
   </style>
 </head>
 <body>
@@ -221,7 +272,10 @@
           <p>Monitoramento Semanal de Fitossanidade por Visão Computacional & LLM</p>
         </div>
       </div>
-      <div class="tag-academic">PUCPR • PjBL2 & TDE2</div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div id="badgeOllama" class="badge-ollama">Verificando Ollama...</div>
+        <div class="tag-academic">PUCPR • PjBL2 & TDE2</div>
+      </div>
     </header>
 
     <div class="alert-banner">
@@ -327,12 +381,47 @@
           <h3 style="margin: 22px 0 8px 0; font-size: 15px; color: #a7f3d0;">📝 Relatório Explicativo (Ollama - Llama 3.2):</h3>
           <div class="relatorio-box" id="resRelatorio"></div>
         </div>
+
+        <!-- Card de Chat Interativo com Ollama -->
+        <div class="card" id="cardChat">
+          <h2>💬 Assistente Virtual Agronômico (Ollama • GPU)</h2>
+          <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px;">
+            Converse em linguagem natural com o assistente inteligente sobre o manejo do plantio. Respostas geradas localmente pelo Ollama na GPU e persistidas no SQLite e MongoDB.
+          </p>
+
+          <div class="chat-container" id="chatHistorico">
+            <div style="color: #64748b; font-size: 13px; font-style: italic;">Selecione um plantio ativo para carregar a conversa...</div>
+          </div>
+
+          <form id="formChat" style="display: flex; gap: 10px; margin-top: 10px;">
+            <input type="text" id="chatTexto" placeholder="Ex: Qual a frequência recomendada de irrigação para esta fase?" style="flex: 1; margin-bottom: 0;" required>
+            <button type="submit" id="btnEnviarChat" style="width: auto; padding: 10px 20px;">Enviar</button>
+          </form>
+        </div>
       </main>
     </div>
   </div>
 
   <script>
     document.getElementById('dataPlantio').valueAsDate = new Date();
+
+    async function verificarStatusOllama() {
+      const badge = document.getElementById('badgeOllama');
+      try {
+        const res = await fetch('/api/ollama/status');
+        const data = await res.json();
+        if (res.ok && data.status === 'online') {
+          badge.className = 'badge-ollama online';
+          badge.innerHTML = `🟢 Ollama Conectado (GPU) • ${data.modelo_padrao}`;
+        } else {
+          badge.className = 'badge-ollama offline';
+          badge.innerHTML = `🔴 Ollama Desconectado`;
+        }
+      } catch (err) {
+        badge.className = 'badge-ollama offline';
+        badge.innerHTML = `🔴 Ollama Desconectado`;
+      }
+    }
 
     async function atualizarListaPlantios() {
       try {
@@ -350,8 +439,37 @@
           opt.textContent = `#${p.id} - ${p.planta_nome} (${p.apelido || 'Sem apelido'})`;
           sel.appendChild(opt);
         });
+        carregarPlantio();
       } catch (err) {
         console.error(err);
+      }
+    }
+
+    async function carregarPlantio() {
+      const plantioId = document.getElementById('selectPlantioAtivo').value;
+      if (!plantioId) return;
+
+      try {
+        const res = await fetch(`/api/plantios/${plantioId}`);
+        const data = await res.json();
+        const container = document.getElementById('chatHistorico');
+        container.innerHTML = '';
+
+        if (!data.mensagens || data.mensagens.length === 0) {
+          container.innerHTML = '<div style="color: #64748b; font-size: 13px; font-style: italic;">Nenhuma mensagem registrada ainda. Envie sua primeira pergunta ao assistente!</div>';
+          return;
+        }
+
+        data.mensagens.forEach(m => {
+          const div = document.createElement('div');
+          div.className = `chat-msg chat-msg-${m.papel}`;
+          div.innerHTML = m.texto;
+          container.appendChild(div);
+        });
+
+        container.scrollTop = container.scrollHeight;
+      } catch (err) {
+        console.error('Erro ao carregar plantio:', err);
       }
     }
 
@@ -413,6 +531,7 @@
         const data = await res.json();
         if (res.ok) {
           exibirResultado(data);
+          await carregarPlantio();
         } else {
           alert(data.detail || 'Erro ao processar diagnóstico.');
         }
@@ -448,6 +567,56 @@
       document.getElementById('resRelatorio').textContent = data.relatorio_ia;
     });
 
+    document.getElementById('formChat').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const plantioId = document.getElementById('selectPlantioAtivo').value;
+      if (!plantioId) {
+        alert('Selecione ou cadastre um plantio primeiro.');
+        return;
+      }
+
+      const input = document.getElementById('chatTexto');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      const container = document.getElementById('chatHistorico');
+      const divUser = document.createElement('div');
+      divUser.className = 'chat-msg chat-msg-usuario';
+      divUser.textContent = texto;
+      container.appendChild(divUser);
+      input.value = '';
+
+      const btn = document.getElementById('btnEnviarChat');
+      btn.disabled = true;
+      btn.textContent = 'Pensando...';
+
+      const divAssistente = document.createElement('div');
+      divAssistente.className = 'chat-msg chat-msg-assistente';
+      divAssistente.textContent = 'Digitando resposta com Ollama (GPU)...';
+      container.appendChild(divAssistente);
+      container.scrollTop = container.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plantio_id: parseInt(plantioId), texto })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          divAssistente.textContent = data.resposta;
+        } else {
+          divAssistente.textContent = 'Erro ao processar mensagem com a IA.';
+        }
+      } catch (err) {
+        divAssistente.textContent = 'Erro de comunicação: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enviar';
+        container.scrollTop = container.scrollHeight;
+      }
+    });
+
     function exibirResultado(data) {
       const card = document.getElementById('cardResultado');
       card.style.display = 'block';
@@ -475,9 +644,11 @@
       card.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function carregarPlantio() {}
-
+    verificarStatusOllama();
     atualizarListaPlantios();
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>

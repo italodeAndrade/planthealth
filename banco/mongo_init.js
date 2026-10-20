@@ -52,7 +52,8 @@ criar("atualizacoes", {
   bsonType: "object",
   required: ["plantio_id", "enviado_em", "semana", "status", "folhas_com_doenca", "fotos"],
   properties: {
-    plantio_id: { bsonType: "objectId" },
+    plantio_id: { bsonType: ["objectId", "number", "int", "string"] },
+    plantio_id_sqlite: { bsonType: ["number", "int", "null"] },
     enviado_em: { bsonType: "date" },
     semana: { bsonType: "number", minimum: 0 },
     fase_esperada: { bsonType: ["string", "null"] },
@@ -62,11 +63,11 @@ criar("atualizacoes", {
       bsonType: "object",
       properties: { altura_cm: nuloOuNum, n_folhas: nuloOuNum },
     },
-    modelo_id: { bsonType: ["objectId", "null"] },
+    modelo_id: { bsonType: ["objectId", "number", "int", "string", "null"] },
     fotos: {
       bsonType: "array",
-      minItems: 3,
-      maxItems: 3,
+      minItems: 0,
+      maxItems: 10,
       items: {
         bsonType: "object",
         required: ["ordem", "caminho", "classe_prevista", "confianca"],
@@ -92,8 +93,9 @@ criar("mensagens", {
   bsonType: "object",
   required: ["plantio_id", "papel", "texto", "criado_em"],
   properties: {
-    plantio_id: { bsonType: "objectId" },
-    atualizacao_id: { bsonType: ["objectId", "null"] },
+    plantio_id: { bsonType: ["objectId", "number", "int", "string"] },
+    plantio_id_sqlite: { bsonType: ["number", "int", "null"] },
+    atualizacao_id: { bsonType: ["objectId", "number", "int", "string", "null"] },
     papel: { enum: ["usuario", "assistente", "sistema"] },
     texto: texto,
     criado_em: { bsonType: "date" },

@@ -6,6 +6,26 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", None)
 
 
+def obter_cliente_ollama():
+    """Retorna a instância configurada do cliente Ollama."""
+    return ollama.Client(host=OLLAMA_HOST) if OLLAMA_HOST else ollama
+
+
+def listar_modelos_ollama() -> list:
+    """Consulta os modelos instalados no serviço Ollama."""
+    try:
+        client = obter_cliente_ollama()
+        resp = client.list()
+        if hasattr(resp, "models"):
+            return [m.model for m in resp.models]
+        if isinstance(resp, dict) and "models" in resp:
+            return [m.get("name", m.get("model")) for m in resp["models"]]
+        return []
+    except Exception as e:
+        print(f"[ERRO OLLAMA] Falha ao listar modelos: {e}")
+        return []
+
+
 def gerar_relatorio_agronomico(
     planta: str,
     status: str,
@@ -41,7 +61,7 @@ Instruções para o relatório:
 """.strip()
 
     try:
-        client = ollama.Client(host=OLLAMA_HOST) if OLLAMA_HOST else ollama
+        client = obter_cliente_ollama()
         resposta = client.chat(
             model=OLLAMA_MODEL,
             messages=[{'role': 'user', 'content': prompt}],
@@ -69,3 +89,61 @@ Instruções para o relatório:
                 "Recomendamos isolar ou descartar adequadamente as folhas com manchas visíveis, evitar molhar a folhagem durante a rega, "
                 "higienizar as ferramentas de poda e consultar um agrônomo ou técnico de extensão rural da sua região para uma avaliação presencial."
             )
+
+
+def responder_chat_agronomico(
+    planta_nome: str,
+    mensagem_usuario: str,
+    historico_mensagens: Optional[list] = None,
+    modelo: Optional[str] = None,
+) -> str:
+    """
+    Conversa interativa com o assistente agronômico usando o Ollama com contexto do plantio.
+    """
+    system_prompt = f"""
+Você é o assistente virtual agronômico inteligente do AgroSaúde.
+O usuário está cultivando {planta_nome}.
+Seu objetivo é orientar o produtor sobre boas práticas de manejo, irrigação, espaçamento, podas sanitárias e prevenção fitossanitária.
+REGRAS ÉTICAS:
+1. NUNCA prescreva produtos químicos sintéticos, agrotóxicos ou dosagens de venenos industriais.
+2. Sempre recomende a consulta presencial a um engenheiro agrônomo ou técnico de extensão rural para diagnósticos definitivos e receituário agronômico.
+3. Seja claro, prestativo e acolhedor em português brasileiro.
+""".strip()
+
+    messages = [{"role": "system", "content": system_prompt}]
+
+    if historico_mensagens:
+        # Pega as últimas 8 mensagens para manter o contexto sem estourar limite
+        for msg in historico_mensagens[-8:]:
+            papel = "user" if msg.get("papel") == "usuario" else "assistant"
+            messages.append({"role": papel, "content": msg.get("texto", "")})
+
+    messages.append({"role": "user", "content": mensagem_usuario})
+
+    try:
+        client = obter_cliente_ollama()
+        resposta = client.chat(
+            model=modelo or OLLAMA_MODEL,
+            messages=messages,
+        )
+        return resposta["message"]["content"]
+    except Exception as e:
+        print(f"[ERRO CHAT OLLAMA] {e}")
+        return (
+            f"Recebi sua dúvida sobre o plantio de {planta_nome}. "
+            "No momento o serviço do assistente virtual está temporariamente indisponível para resposta dinâmica. "
+            "Recomendamos manter o monitoramento semanal e procurar orientação presencial de um agrônomo."
+        )
+
+
+def chat_generico_ollama(
+    mensagens: list,
+    modelo: Optional[str] = None,
+) -> str:
+    """Endpoint direto para chat livre com qualquer modelo do Ollama."""
+    client = obter_cliente_ollama()
+    resposta = client.chat(
+        model=modelo or OLLAMA_MODEL,
+        messages=mensagens,
+    )
+    return resposta["message"]["content"]

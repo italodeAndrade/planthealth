@@ -4,20 +4,20 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: agro_saude_api
-    ports:
-      - "8000:8000"
+    # network_mode: host permite que o container acesse diretamente o Ollama (escutando em 127.0.0.1 no host com GPU)
+    # e o MongoDB (exposto em 127.0.0.1:27017), além de publicar a porta 8000 diretamente no host.
+    network_mode: host
     environment:
-      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_URI=mongodb://127.0.0.1:27017
       - MONGO_DB=agro_saude
-      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_HOST=http://127.0.0.1:11434
+      - OLLAMA_MODEL=llama3.2
     volumes:
       - ./dados/uploads:/app/dados/uploads
       - ./banco:/app/banco
       - ./modelos:/app/modelos
     depends_on:
       - mongo
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     restart: unless-stopped
 
   mongo:
