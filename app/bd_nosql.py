@@ -34,6 +34,62 @@ def obter_bd():
     return None
 
 
+def salvar_plantio_nosql(dados: Dict[str, Any]) -> Optional[str]:
+    """
+    Registra um novo plantio/sessão de chat no MongoDB (coleção 'plantios').
+    Schema: planta (str), apelido (str), data_plantio (date), criado_em (date), ativo (bool), plantio_id_sqlite (int).
+    """
+    bd = obter_bd()
+    if bd is None:
+        return None
+
+    try:
+        dt_plantio = dados.get("data_plantio")
+        if isinstance(dt_plantio, str):
+            try:
+                dt_plantio = datetime.fromisoformat(dt_plantio.replace("Z", "+00:00"))
+            except Exception:
+                dt_plantio = datetime.now(timezone.utc)
+        elif not isinstance(dt_plantio, datetime):
+            dt_plantio = datetime.now(timezone.utc)
+
+        doc = {
+            "planta": str(dados.get("planta", "batata")).lower(),
+            "apelido": str(dados.get("apelido") or f"Plantio {dados.get('id', '')}").strip(),
+            "data_plantio": dt_plantio,
+            "criado_em": datetime.now(timezone.utc),
+            "ativo": bool(dados.get("ativo", True)),
+            "plantio_id_sqlite": int(dados.get("id")) if dados.get("id") else None,
+        }
+        res = bd.plantios.insert_one(doc)
+        return str(res.inserted_id)
+    except Exception as e:
+        print(f"[AVISO MONGO] Erro ao salvar plantio no NoSQL: {e}")
+        return None
+
+
+def sincronizar_plantios_sqlite_mongo(plantios_sqlite: List[Dict[str, Any]]) -> None:
+    """
+    Garante que todos os plantios catalogados no SQLite possuam um registro correspondente
+    na coleção 'plantios' do MongoDB, unificando a identidade das conversas.
+    """
+    bd = obter_bd()
+    if bd is None:
+        return
+
+    try:
+        for p in plantios_sqlite:
+            pid = p.get("id")
+            if not pid:
+                continue
+            existente = bd.plantios.find_one({"plantio_id_sqlite": pid})
+            if not existente:
+                salvar_plantio_nosql(p)
+                print(f"[MONGO] Plantio SQLite #{pid} ({p.get('apelido')}) sincronizado com sucesso no NoSQL.")
+    except Exception as e:
+        print(f"[AVISO MONGO] Erro ao sincronizar plantios SQLite com MongoDB: {e}")
+
+
 def salvar_atualizacao_nosql(dados: Dict[str, Any]) -> Optional[str]:
     """
     Registra a atualização no MongoDB conforme o schema validado em mongo_init.js.

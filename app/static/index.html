@@ -255,6 +255,104 @@
       color: #fca5a5;
     }
 
+    /* Abas / Lista de Plantios Selecionáveis */
+    .plantios-tabs-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 10px;
+    }
+    .plantios-tabs-container::-webkit-scrollbar {
+      width: 5px;
+    }
+    .plantios-tabs-container::-webkit-scrollbar-thumb {
+      background: #1e4d34;
+      border-radius: 4px;
+    }
+
+    .plantio-tab {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #07150e;
+      border: 1.5px solid var(--surface-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.22s ease-in-out;
+      position: relative;
+    }
+    .plantio-tab:hover {
+      border-color: #10b981;
+      background: #0c2016;
+      transform: translateY(-1px);
+    }
+    .plantio-tab.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(6, 78, 59, 0.38) 100%);
+      border-color: #10b981;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+    }
+
+    .plantio-tab-icone {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .plantio-tab.active .plantio-tab-icone {
+      background: #10b981;
+      color: #042414;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .plantio-tab-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .plantio-tab-titulo {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .plantio-tab-sub {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .plantio-tab-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      white-space: nowrap;
+    }
+    .plantio-tab.active .plantio-tab-badge {
+      background: #10b981;
+      color: #042414;
+      font-weight: 800;
+    }
+
     /* Container do Chat: Caixa Scrolável com Rolagem Suave */
     .chat-container {
       display: flex;
@@ -466,16 +564,43 @@
     </div>
 
     <div class="grid">
-      <!-- Coluna Esquerda: Plantios e Controles -->
+      <!-- Coluna Esquerda: Abas de Plantios e Cadastro -->
       <aside>
-        <div class="card">
-          <h2>🪴 Novo Plantio (Chat)</h2>
+        <!-- Card 1: Abas Selecionáveis de Plantios / Chats -->
+        <div class="card" id="cardAbasPlantios" style="border-top: 3px solid var(--primary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <h2 style="margin-bottom: 0;">💬 Plantios &amp; Chats</h2>
+            <span id="badgeTotalPlantios" style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 999px; font-weight: 700;">
+              0 plantios
+            </span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 8px;">
+            Selecione uma conversa para carregar o histórico isolado e as orientações deste canteiro:
+          </p>
+
+          <!-- Lista de Abas Selecionáveis -->
+          <div id="listaPlantiosTabs" class="plantios-tabs-container">
+            <div style="color: #64748b; font-size: 12px; font-style: italic; text-align: center; padding: 14px 0;">Carregando plantios...</div>
+          </div>
+
+          <!-- Select oculto para preservar compatibilidade de formulários -->
+          <select id="selectPlantioAtivo" onchange="carregarPlantio()" style="display: none;"></select>
+        </div>
+
+        <!-- Card 2: Cadastro de Novo Plantio -->
+        <div class="card" id="cardNovoPlantio">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <h2 style="margin-bottom: 0;">🪴 Novo Canteiro</h2>
+          </div>
+          <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">
+            Inicie um novo ciclo de monitoramento e conversa:
+          </p>
           <form id="formPlantio">
             <label for="plantaSelect">Cultura</label>
             <select id="plantaSelect" required>
-              <option value="batata">Batata (Solanum tuberosum)</option>
-              <option value="tomate">Tomate (Solanum lycopersicum)</option>
-              <option value="milho">Milho (Zea mays)</option>
+              <option value="batata">🥔 Batata (Solanum tuberosum)</option>
+              <option value="tomate">🍅 Tomate (Solanum lycopersicum)</option>
+              <option value="milho">🌽 Milho (Zea mays)</option>
             </select>
 
             <label for="apelidoInput">Identificação / Canteiro</label>
@@ -484,33 +609,9 @@
             <label for="dataPlantio">Data do Plantio</label>
             <input type="date" id="dataPlantio" required>
 
-            <button type="submit">Cadastrar Plantio</button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h2>📋 Plantio Ativo</h2>
-          <select id="selectPlantioAtivo" onchange="carregarPlantio()">
-            <option value="">Carregando plantios...</option>
-          </select>
-        </div>
-
-        <div class="card">
-          <h2>⚡ Teste Direto de LLM</h2>
-          <form id="formLLMDireto">
-            <label>Cultura</label>
-            <input type="text" id="llmPlanta" value="Batata">
-            <label>Semana do Ciclo</label>
-            <input type="number" id="llmSemana" value="3" min="0">
-            <label>Status</label>
-            <select id="llmStatus">
-              <option value="doenca">Doença detectada</option>
-              <option value="saudavel">Saudável</option>
-              <option value="incerto">Incerto (baixa confiança)</option>
-            </select>
-            <label>Folhas com Indício (0 a 3)</label>
-            <input type="number" id="llmFolhas" min="0" max="3" value="2">
-            <button type="submit" style="background: #2563eb; color: white;">Gerar Relatório</button>
+            <button type="submit" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>+ Iniciar Plantio &amp; Chat</span>
+            </button>
           </form>
         </div>
       </aside>
@@ -570,8 +671,8 @@
         <!-- Card de Chat Interativo com Ollama -->
         <div class="card" id="cardChat" style="border-top: 3px solid var(--primary);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-            <h2 style="margin-bottom: 0;">💬 Assistente Virtual Agronômico (Ollama • GPU)</h2>
-            <span style="font-size: 11px; color: #a7f3d0; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 3px 9px; border-radius: 999px; font-weight: 600;">
+            <h2 style="margin-bottom: 0;" id="chatTituloPlantio">💬 Assistente Virtual Agronômico (Ollama • GPU)</h2>
+            <span id="chatPlantioBadge" style="font-size: 11px; color: #a7f3d0; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 3px 9px; border-radius: 999px; font-weight: 600;">
               👁️ Visão &amp; Fotos Integradas
             </span>
           </div>
@@ -681,27 +782,105 @@
       }
     }
 
+    function obterIconeCultura(planta) {
+      const p = (planta || '').toLowerCase();
+      if (p.includes('batata')) return '🥔';
+      if (p.includes('tomate')) return '🍅';
+      if (p.includes('milho')) return '🌽';
+      return '🌱';
+    }
+
     async function atualizarListaPlantios() {
       try {
         const res = await fetch('/api/plantios');
         todosPlantios = await res.json();
         const sel = document.getElementById('selectPlantioAtivo');
+        const containerTabs = document.getElementById('listaPlantiosTabs');
+        const badgeTotal = document.getElementById('badgeTotalPlantios');
+
         sel.innerHTML = '';
+        containerTabs.innerHTML = '';
+
+        if (badgeTotal) {
+          badgeTotal.textContent = `${todosPlantios.length} ${todosPlantios.length === 1 ? 'canteiro' : 'canteiros'}`;
+        }
+
         if (todosPlantios.length === 0) {
           sel.innerHTML = '<option value="">Nenhum plantio cadastrado</option>';
+          containerTabs.innerHTML = `
+            <div style="background: rgba(16, 34, 23, 0.4); border: 1px dashed var(--surface-border); border-radius: 10px; padding: 14px; text-align: center; color: #94a3b8; font-size: 12px; line-height: 1.5;">
+              Nenhum plantio cadastrado ainda.<br>
+              Cadastre um canteiro abaixo para iniciar a conversa!
+            </div>
+          `;
           atualizarAvisoModeloAtivo();
           return;
         }
+
+        // Recupera ID ativo anterior ou usa o primeiro
+        const valorAnterior = sel.value;
+        let idAtivo = todosPlantios.some(p => String(p.id) === String(valorAnterior))
+          ? valorAnterior
+          : String(todosPlantios[0].id);
+
         todosPlantios.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p.id;
           opt.textContent = `#${p.id} - ${p.planta_nome} (${p.apelido || 'Sem apelido'})`;
+          if (String(p.id) === String(idAtivo)) opt.selected = true;
           sel.appendChild(opt);
+
+          // Cria a aba visual interativa
+          const tab = document.createElement('div');
+          const isAtivo = String(p.id) === String(idAtivo);
+          tab.className = `plantio-tab ${isAtivo ? 'active' : ''}`;
+          tab.dataset.id = p.id;
+
+          const icone = obterIconeCultura(p.planta);
+          const dataFormatada = p.data_plantio ? p.data_plantio.split('-').reverse().join('/') : 'Data não def.';
+
+          tab.innerHTML = `
+            <div class="plantio-tab-icone">${icone}</div>
+            <div class="plantio-tab-info">
+              <div class="plantio-tab-titulo">
+                <span>${p.apelido || p.planta_nome}</span>
+              </div>
+              <div class="plantio-tab-sub">
+                ${p.planta_nome} • Plantado em ${dataFormatada}
+              </div>
+            </div>
+            <div class="plantio-tab-badge">
+              ${isAtivo ? '● Ativo' : 'Selecionar'}
+            </div>
+          `;
+
+          tab.addEventListener('click', () => {
+            selecionarPlantio(p.id);
+          });
+
+          containerTabs.appendChild(tab);
         });
+
+        sel.value = idAtivo;
         carregarPlantio();
       } catch (err) {
         console.error('Erro ao atualizar plantios:', err);
       }
+    }
+
+    function selecionarPlantio(id) {
+      const sel = document.getElementById('selectPlantioAtivo');
+      sel.value = id;
+
+      // Atualiza visual das abas
+      document.querySelectorAll('.plantio-tab').forEach(t => {
+        const ativou = String(t.dataset.id) === String(id);
+        t.classList.toggle('active', ativou);
+        const badge = t.querySelector('.plantio-tab-badge');
+        if (badge) badge.textContent = ativou ? '● Ativo' : 'Selecionar';
+      });
+
+      carregarPlantio();
     }
 
     function formatarHora(dataStr) {
@@ -803,6 +982,18 @@
       atualizarAvisoModeloAtivo();
       if (!plantioId) return;
 
+      const plantioObj = todosPlantios.find(p => String(p.id) === String(plantioId));
+      if (plantioObj) {
+        const tituloChat = document.getElementById('chatTituloPlantio');
+        const badgeChat = document.getElementById('chatPlantioBadge');
+        if (tituloChat) {
+          tituloChat.innerHTML = `💬 Chat Agrônomo — ${plantioObj.apelido || plantioObj.planta_nome} <span style="font-weight: 400; font-size: 13.5px; color: #a7f3d0;">(${plantioObj.planta_nome})</span>`;
+        }
+        if (badgeChat) {
+          badgeChat.innerHTML = `${obterIconeCultura(plantioObj.planta)} Canteiro #${plantioObj.id}`;
+        }
+      }
+
       try {
         const res = await fetch(`/api/plantios/${plantioId}`);
         const data = await res.json();
@@ -811,10 +1002,10 @@
 
         if (!data.mensagens || data.mensagens.length === 0) {
           container.innerHTML = `
-            <div style="background: rgba(16, 34, 23, 0.6); border: 1px dashed var(--surface-border); border-radius: 12px; padding: 16px; text-align: center; color: #94a3b8; font-size: 13px; line-height: 1.6;">
-              🌱 <strong>Assistente Virtual Agronômico Pronto!</strong><br>
-              Envie suas dúvidas sobre manejo, rega, adubação ou sintomas foliares.<br>
-              O assistente tem acesso direto aos diagnósticos e fotos das folhas deste plantio.
+            <div style="background: rgba(16, 34, 23, 0.6); border: 1px dashed var(--surface-border); border-radius: 12px; padding: 18px; text-align: center; color: #94a3b8; font-size: 13px; line-height: 1.6;">
+              🌱 <strong>Conversa do Canteiro #${plantioId} Pronta!</strong><br>
+              Envie suas dúvidas sobre manejo, rega, adubação ou sintomas foliares deste plantio.<br>
+              O assistente agronômico (Ollama) responderá com histórico e fotos isoladas desta cultura.
             </div>
           `;
           return;
@@ -838,14 +1029,28 @@
         apelido: document.getElementById('apelidoInput').value,
         data_plantio: document.getElementById('dataPlantio').value,
       };
-      const res = await fetch('/api/plantios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados)
-      });
-      if (res.ok) {
-        alert('Plantio cadastrado com sucesso!');
-        await atualizarListaPlantios();
+      try {
+        const res = await fetch('/api/plantios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('apelidoInput').value = '';
+          // Seleciona a nova conversa criada
+          if (data.plantio_id) {
+            document.getElementById('selectPlantioAtivo').value = data.plantio_id;
+          }
+          await atualizarListaPlantios();
+          if (data.plantio_id) {
+            selecionarPlantio(data.plantio_id);
+          }
+        } else {
+          alert(data.detail || 'Erro ao cadastrar plantio.');
+        }
+      } catch (err) {
+        alert('Erro ao comunicar com a API: ' + err.message);
       }
     });
 
@@ -899,30 +1104,6 @@
         btn.textContent = 'Submeter para Visão Computacional & LLM';
         btn.disabled = false;
       }
-    });
-
-    document.getElementById('formLLMDireto').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const dados = {
-        planta: document.getElementById('llmPlanta').value,
-        semana: parseInt(document.getElementById('llmSemana').value),
-        status: document.getElementById('llmStatus').value,
-        folhas_doentes: parseInt(document.getElementById('llmFolhas').value)
-      };
-      const res = await fetch('/api/gerar-relatorio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados)
-      });
-      const data = await res.json();
-      document.getElementById('cardResultado').style.display = 'block';
-      document.getElementById('resStatus').textContent = dados.status;
-      document.getElementById('resStatus').className = 'status-tag status-' + dados.status;
-      document.getElementById('resFolhas').textContent = dados.folhas_doentes;
-      document.getElementById('resFaseBox').textContent = data.fase_esperada ? 'Fase Fenológica: ' + data.fase_esperada : '';
-      document.getElementById('resOrientacao').textContent = '';
-      document.getElementById('resFotosContainer').innerHTML = '';
-      document.getElementById('resRelatorio').textContent = data.relatorio_ia;
     });
 
     document.getElementById('formChat').addEventListener('submit', async (e) => {

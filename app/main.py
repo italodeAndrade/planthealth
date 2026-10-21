@@ -17,6 +17,8 @@ from app.bd_nosql import (
     obter_cliente,
     salvar_atualizacao_nosql,
     salvar_mensagem_chat,
+    salvar_plantio_nosql,
+    sincronizar_plantios_sqlite_mongo,
 )
 from app.bd_relacional import (
     criar_plantio,
@@ -54,8 +56,13 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Inicializa tabelas do SQLite na subida da aplicação
+    # 1. Inicializa tabelas do SQLite na subida da aplicação
     inicializar_banco()
+    # 2. Sincroniza plantios já existentes com a coleção 'plantios' do MongoDB
+    try:
+        sincronizar_plantios_sqlite_mongo(listar_plantios())
+    except Exception as e:
+        print(f"[AVISO MONGO] Erro ao sincronizar plantios na inicialização: {e}")
     yield
 
 
@@ -206,11 +213,20 @@ async def get_plantios():
 
 @app.post("/api/plantios")
 async def post_plantio(dados: NovoPlantio):
+    # 1. Cria a entidade mestre e identificador sequencial no SQLite
     plantio_id = criar_plantio(
         planta=dados.planta,
         apelido=dados.apelido,
         data_plantio=dados.data_plantio,
     )
+    # 2. Cria o registro correspondente da sessão de plantio no MongoDB NoSQL
+    salvar_plantio_nosql({
+        "id": plantio_id,
+        "planta": dados.planta,
+        "apelido": dados.apelido,
+        "data_plantio": dados.data_plantio,
+        "ativo": True,
+    })
     return {"sucesso": True, "plantio_id": plantio_id}
 
 
