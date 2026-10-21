@@ -1,0 +1,90 @@
+{
+  "planta": "tomate",
+  "semente": 42,
+  "proporcao": {
+    "treino": 0.7,
+    "validacao": 0.15,
+    "teste": 0.15
+  },
+  "max_treino_por_classe": 800,
+  "fonte": "PlantVillage (raw/color) – github.com/spMohanty/PlantVillage-Dataset",
+  "contagem": {
+    "Tomato___Bacterial_spot": {
+      "treino": 1489,
+      "validacao": 319,
+      "teste": 319,
+      "treino_usado": 800,
+      "total": 2127
+    },
+    "Tomato___Early_blight": {
+      "treino": 700,
+      "validacao": 150,
+      "teste": 150,
+      "treino_usado": 700,
+      "total": 1000
+    },
+    "Tomato___Late_blight": {
+      "treino": 1337,
+      "validacao": 286,
+      "teste": 286,
+      "treino_usado": 800,
+      "total": 1909
+    },
+    "Tomato___Leaf_Mold": {
+      "treino": 666,
+      "validacao": 143,
+      "teste": 143,
+      "treino_usado": 666,
+      "total": 952
+    },
+    "Tomato___Septoria_leaf_spot": {
+      "treino": 1240,
+      "validacao": 265,
+      "teste": 266,
+      "treino_usado": 800,
+      "total": 1771
+    },
+    "Tomato___Spider_mites Two-spotted_spider_mite": {
+      "treino": 1173,
+      "validacao": 252,
+      "teste": 251,
+      "treino_usado": 800,
+      "total": 1676
+    },
+    "Tomato___Target_Spot": {
+      "treino": 983,
+      "validacao": 210,
+      "teste": 211,
+      "treino_usado": 800,
+      "total": 1404
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+      "treino": 3750,
+      "validacao": 804,
+      "teste": 803,
+      "treino_usado": 800,
+      "total": 5357
+    },
+    "Tomato___Tomato_mosaic_virus": {
+      "treino": 261,
+      "validacao": 56,
+      "teste": 56,
+      "treino_usado": 261,
+      "total": 373
+    },
+    "Tomato___healthy": {
+      "treino": 1113,
+      "validacao": 239,
+      "teste": 239,
+      "treino_usado": 800,
+      "total": 1591
+    },
+    "total": {
+      "treino": 12712,
+      "validacao": 2724,
+      "teste": 2724,
+      "treino_usado": 7227,
+      "total": 18160
+    }
+  }
+}

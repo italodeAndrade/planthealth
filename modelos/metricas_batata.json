@@ -2,7 +2,7 @@
   "planta": "batata",
   "versao": "v1",
   "arquitetura": "MobileNetV2 (ImageNet, transferência de aprendizado)",
-  "treinado_em": "2026-10-21T12:30:07.412421+00:00",
+  "treinado_em": "2026-10-21T20:43:20.444314+00:00",
   "classes": [
     "Potato___Early_blight",
     "Potato___Late_blight",
@@ -13,14 +13,16 @@
     "plataforma": "cpu",
     "torch": "2.14.1+cpu",
     "threads": 8,
-    "tempo_total_min": 4.9
+    "tempo_total_min": 4.5
   },
   "divisao": {
     "treino": 1506,
+    "treino_usado": 1506,
     "validacao": 323,
     "teste": 323,
     "proporcao": "70/15/15 estratificada",
-    "semente": 42
+    "semente": 42,
+    "arquivo_treino": "treino.csv"
   },
   "hiperparametros": {
     "lote": 32,
@@ -34,7 +36,8 @@
     "dropout": 0.2,
     "tamanho_entrada": 224,
     "semente": 42,
-    "pesos_classe": "inverso da frequência"
+    "pesos_classe": "inverso da frequência",
+    "treino_csv": "treino.csv"
   },
   "melhor_epoca_validacao": 12,
   "teste": {
@@ -48,25 +51,29 @@
         "precisao": 1.0,
         "revocacao": 1.0,
         "f1": 1.0,
-        "suporte": 150
+        "suporte": 150,
+        "especificidade": 1.0
       },
       "Potato___Late_blight": {
         "precisao": 1.0,
         "revocacao": 0.9933333333333333,
         "f1": 0.9966555183946488,
-        "suporte": 150
+        "suporte": 150,
+        "especificidade": 1.0
       },
       "Potato___healthy": {
         "precisao": 0.9583333333333334,
         "revocacao": 1.0,
         "f1": 0.9787234042553191,
-        "suporte": 23
+        "suporte": 23,
+        "especificidade": 0.9966666666666667
       }
     },
     "com_limiar": {
       "cobertura": 0.9659442724458205,
       "acuracia_aceitas": 1.0
-    }
+    },
+    "especificidade_macro": 0.9988888888888888
   },
   "validacao": {
     "acuracia": 1.0,

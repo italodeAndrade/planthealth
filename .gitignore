@@ -28,6 +28,10 @@ modelos/*.onnx
 !modelos/tomate.onnx
 !modelos/milho.onnx
 !modelos/README.md
+# PjBL2: metadados, métricas e figuras dos modelos
+!modelos/*.classes.json
+!modelos/metricas_*.json
+!modelos/*.png
 
 # Logs e arquivos temporários de sistema
 *.log
