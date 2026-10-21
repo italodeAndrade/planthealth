@@ -1,0 +1,7 @@
+# Imagens da base (baixadas por scripts/baixar_dados.sh, não versionadas)
+dados/plantvillage/
+dados/fotos_reais/
+# Ambiente / cache
+.venv/
+__pycache__/
+.ipynb_checkpoints/
