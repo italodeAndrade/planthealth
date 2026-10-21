@@ -1,0 +1,218 @@
+{
+  "planta": "batata",
+  "versao": "v1",
+  "arquitetura": "MobileNetV2 (ImageNet, transferência de aprendizado)",
+  "treinado_em": "2026-10-21T12:30:07.412421+00:00",
+  "classes": [
+    "Potato___Early_blight",
+    "Potato___Late_blight",
+    "Potato___healthy"
+  ],
+  "limiar": 0.98,
+  "ambiente": {
+    "plataforma": "cpu",
+    "torch": "2.14.1+cpu",
+    "threads": 8,
+    "tempo_total_min": 4.9
+  },
+  "divisao": {
+    "treino": 1506,
+    "validacao": 323,
+    "teste": 323,
+    "proporcao": "70/15/15 estratificada",
+    "semente": 42
+  },
+  "hiperparametros": {
+    "lote": 32,
+    "epocas_etapa1": 6,
+    "lr_etapa1": 0.001,
+    "epocas_etapa2": 6,
+    "lr_etapa2": 0.0001,
+    "blocos_descongelados_etapa2": 5,
+    "otimizador": "Adam",
+    "weight_decay": 0.0001,
+    "dropout": 0.2,
+    "tamanho_entrada": 224,
+    "semente": 42,
+    "pesos_classe": "inverso da frequência"
+  },
+  "melhor_epoca_validacao": 12,
+  "teste": {
+    "acuracia": 0.9969040247678018,
+    "precisao_macro": 0.9861111111111112,
+    "revocacao_macro": 0.9977777777777778,
+    "f1_macro": 0.991792974216656,
+    "f1_ponderado": 0.9969317834584199,
+    "por_classe": {
+      "Potato___Early_blight": {
+        "precisao": 1.0,
+        "revocacao": 1.0,
+        "f1": 1.0,
+        "suporte": 150
+      },
+      "Potato___Late_blight": {
+        "precisao": 1.0,
+        "revocacao": 0.9933333333333333,
+        "f1": 0.9966555183946488,
+        "suporte": 150
+      },
+      "Potato___healthy": {
+        "precisao": 0.9583333333333334,
+        "revocacao": 1.0,
+        "f1": 0.9787234042553191,
+        "suporte": 23
+      }
+    },
+    "com_limiar": {
+      "cobertura": 0.9659442724458205,
+      "acuracia_aceitas": 1.0
+    }
+  },
+  "validacao": {
+    "acuracia": 1.0,
+    "f1_macro": 1.0
+  },
+  "matriz_confusao": {
+    "classes": [
+      "Potato___Early_blight",
+      "Potato___Late_blight",
+      "Potato___healthy"
+    ],
+    "valores": [
+      [
+        150,
+        0,
+        0
+      ],
+      [
+        0,
+        149,
+        1
+      ],
+      [
+        0,
+        0,
+        23
+      ]
+    ],
+    "linhas": "real",
+    "colunas": "prevista"
+  },
+  "onnx": {
+    "arquivo": "modelos/batata.onnx",
+    "entrada": "input (lote, 3, 224, 224) float32, ImageNet",
+    "saida": "logits (lote, 3) – aplicar softmax",
+    "dif_max_vs_pytorch": 5.662441253662109e-06,
+    "concordancia_vs_pytorch": "323/323"
+  },
+  "historico": [
+    {
+      "etapa": 1,
+      "epoca": 1,
+      "perda_treino": 0.5573448203157777,
+      "acc_treino": 0.8193891102257637,
+      "perda_val": 0.3133382797241211,
+      "acc_val": 0.8854489164086687,
+      "f1_macro_val": 0.8603921024645119
+    },
+    {
+      "etapa": 1,
+      "epoca": 2,
+      "perda_treino": 0.22290186256363217,
+      "acc_treino": 0.9448871181938912,
+      "perda_val": 0.20042744278907776,
+      "acc_val": 0.9256965944272446,
+      "f1_macro_val": 0.8801462904911181
+    },
+    {
+      "etapa": 1,
+      "epoca": 3,
+      "perda_treino": 0.17777965980696964,
+      "acc_treino": 0.953519256308101,
+      "perda_val": 0.15768000483512878,
+      "acc_val": 0.9411764705882353,
+      "f1_macro_val": 0.8919386923497452
+    },
+    {
+      "etapa": 1,
+      "epoca": 4,
+      "perda_treino": 0.1491428734771759,
+      "acc_treino": 0.9608233731739708,
+      "perda_val": 0.13156455755233765,
+      "acc_val": 0.9535603715170279,
+      "f1_macro_val": 0.9045401725587947
+    },
+    {
+      "etapa": 1,
+      "epoca": 5,
+      "perda_treino": 0.153054752766809,
+      "acc_treino": 0.9575033200531209,
+      "perda_val": 0.1583327353000641,
+      "acc_val": 0.9226006191950464,
+      "f1_macro_val": 0.8835662106495236
+    },
+    {
+      "etapa": 1,
+      "epoca": 6,
+      "perda_treino": 0.12147707788948994,
+      "acc_treino": 0.9594953519256308,
+      "perda_val": 0.11445606499910355,
+      "acc_val": 0.9721362229102167,
+      "f1_macro_val": 0.941856652265426
+    },
+    {
+      "etapa": 2,
+      "epoca": 7,
+      "perda_treino": 0.2881302134205514,
+      "acc_treino": 0.8957503320053121,
+      "perda_val": 0.10512863099575043,
+      "acc_val": 0.9442724458204335,
+      "f1_macro_val": 0.8966981150411861
+    },
+    {
+      "etapa": 2,
+      "epoca": 8,
+      "perda_treino": 0.05516638819882424,
+      "acc_treino": 0.9747675962815405,
+      "perda_val": 0.04403981938958168,
+      "acc_val": 0.9814241486068112,
+      "f1_macro_val": 0.9686897357231334
+    },
+    {
+      "etapa": 2,
+      "epoca": 9,
+      "perda_treino": 0.06228430855371167,
+      "acc_treino": 0.9767596281540505,
+      "perda_val": 0.05249495431780815,
+      "acc_val": 0.9721362229102167,
+      "f1_macro_val": 0.9392626416370708
+    },
+    {
+      "etapa": 2,
+      "epoca": 10,
+      "perda_treino": 0.038307224804780396,
+      "acc_treino": 0.9847277556440903,
+      "perda_val": 0.03352830559015274,
+      "acc_val": 0.9814241486068112,
+      "f1_macro_val": 0.9594101206374023
+    },
+    {
+      "etapa": 2,
+      "epoca": 11,
+      "perda_treino": 0.01467428387051193,
+      "acc_treino": 0.9933598937583001,
+      "perda_val": 0.008753238245844841,
+      "acc_val": 0.9938080495356038,
+      "f1_macro_val": 0.9895707519944338
+    },
+    {
+      "etapa": 2,
+      "epoca": 12,
+      "perda_treino": 0.015640865346360555,
+      "acc_treino": 0.9926958831341302,
+      "perda_val": 0.005480742547661066,
+      "acc_val": 1.0,
+      "f1_macro_val": 1.0
+    }
+  ]
+}
