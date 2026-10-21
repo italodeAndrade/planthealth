@@ -118,6 +118,7 @@ def preparar(planta: str) -> None:
     (RAIZ / "modelos").mkdir(exist_ok=True)
     with open(RAIZ / "modelos" / f"{planta}.classes.json", "w", encoding="utf-8") as f:
         json.dump({"planta": planta, "classes": classes}, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
     # Verificação: nenhum arquivo em mais de um conjunto
     vistos = [set(partes[n]["caminho"]) for n in conjuntos]
