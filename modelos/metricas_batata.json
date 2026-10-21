@@ -51,25 +51,29 @@
         "precisao": 1.0,
         "revocacao": 1.0,
         "f1": 1.0,
-        "suporte": 150
+        "suporte": 150,
+        "especificidade": 1.0
       },
       "Potato___Late_blight": {
         "precisao": 1.0,
         "revocacao": 0.9933333333333333,
         "f1": 0.9966555183946488,
-        "suporte": 150
+        "suporte": 150,
+        "especificidade": 1.0
       },
       "Potato___healthy": {
         "precisao": 0.9583333333333334,
         "revocacao": 1.0,
         "f1": 0.9787234042553191,
-        "suporte": 23
+        "suporte": 23,
+        "especificidade": 0.9966666666666667
       }
     },
     "com_limiar": {
       "cobertura": 0.9659442724458205,
       "acuracia_aceitas": 1.0
-    }
+    },
+    "especificidade_macro": 0.9988888888888888
   },
   "validacao": {
     "acuracia": 1.0,

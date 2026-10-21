@@ -58,67 +58,78 @@
         "precisao": 0.9214501510574018,
         "revocacao": 0.9561128526645768,
         "f1": 0.9384615384615385,
-        "suporte": 319
+        "suporte": 319,
+        "especificidade": 0.9891891891891892
       },
       "Tomato___Early_blight": {
         "precisao": 1.0,
         "revocacao": 0.7466666666666667,
         "f1": 0.8549618320610687,
-        "suporte": 150
+        "suporte": 150,
+        "especificidade": 1.0
       },
       "Tomato___Late_blight": {
         "precisao": 0.9676258992805755,
         "revocacao": 0.9405594405594405,
         "f1": 0.9539007092198581,
-        "suporte": 286
+        "suporte": 286,
+        "especificidade": 0.9963084495488105
       },
       "Tomato___Leaf_Mold": {
         "precisao": 0.9854014598540146,
         "revocacao": 0.9440559440559441,
         "f1": 0.9642857142857143,
-        "suporte": 143
+        "suporte": 143,
+        "especificidade": 0.9992251065478497
       },
       "Tomato___Septoria_leaf_spot": {
         "precisao": 0.9110320284697508,
         "revocacao": 0.9624060150375939,
         "f1": 0.9360146252285192,
-        "suporte": 266
+        "suporte": 266,
+        "especificidade": 0.9898291293734743
       },
       "Tomato___Spider_mites Two-spotted_spider_mite": {
         "precisao": 0.8250825082508251,
         "revocacao": 0.9960159362549801,
         "f1": 0.9025270758122743,
-        "suporte": 251
+        "suporte": 251,
+        "especificidade": 0.978568540234533
       },
       "Tomato___Target_Spot": {
         "precisao": 0.9166666666666666,
         "revocacao": 0.8862559241706162,
         "f1": 0.9012048192771084,
-        "suporte": 211
+        "suporte": 211,
+        "especificidade": 0.9932351770791882
       },
       "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
         "precisao": 0.9936143039591315,
         "revocacao": 0.9688667496886675,
         "f1": 0.9810844892812106,
-        "suporte": 803
+        "suporte": 803,
+        "especificidade": 0.9973971889640812
       },
       "Tomato___Tomato_mosaic_virus": {
         "precisao": 1.0,
         "revocacao": 0.9642857142857143,
         "f1": 0.9818181818181818,
-        "suporte": 56
+        "suporte": 56,
+        "especificidade": 1.0
       },
       "Tomato___healthy": {
         "precisao": 0.983402489626556,
         "revocacao": 0.9916317991631799,
         "f1": 0.9875,
-        "suporte": 239
+        "suporte": 239,
+        "especificidade": 0.9983903420523139
       }
     },
     "com_limiar": {
       "cobertura": 0.9643906020558003,
       "acuracia_aceitas": 0.9657403882755995
-    }
+    },
+    "especificidade_macro": 0.9942143122989441
   },
   "validacao": {
     "acuracia": 0.9530102790014684,

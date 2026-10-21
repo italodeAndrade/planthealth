@@ -52,31 +52,36 @@
         "precisao": 0.9420289855072463,
         "revocacao": 0.8441558441558441,
         "f1": 0.8904109589041096,
-        "suporte": 77
+        "suporte": 77,
+        "especificidade": 0.9920159680638723
       },
       "Corn_(maize)___Common_rust_": {
         "precisao": 1.0,
         "revocacao": 1.0,
         "f1": 1.0,
-        "suporte": 179
+        "suporte": 179,
+        "especificidade": 1.0
       },
       "Corn_(maize)___Northern_Leaf_Blight": {
         "precisao": 0.9225806451612903,
         "revocacao": 0.9662162162162162,
         "f1": 0.9438943894389439,
-        "suporte": 148
+        "suporte": 148,
+        "especificidade": 0.9720930232558139
       },
       "Corn_(maize)___healthy": {
         "precisao": 0.9942857142857143,
         "revocacao": 1.0,
         "f1": 0.997134670487106,
-        "suporte": 174
+        "suporte": 174,
+        "especificidade": 0.9975247524752475
       }
     },
     "com_limiar": {
       "cobertura": 0.972318339100346,
       "acuracia_aceitas": 0.9822064056939501
-    }
+    },
+    "especificidade_macro": 0.9904084359487335
   },
   "validacao": {
     "acuracia": 0.9740484429065744,
