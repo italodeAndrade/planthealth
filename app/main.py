@@ -29,6 +29,7 @@ from app.bd_relacional import (
     obter_fase_cultura,
     obter_historico,
     obter_plantio,
+    obter_ultimas_fotos_plantio,
 )
 from app.inferencia import (
     ModeloIndisponivelError,
@@ -446,14 +447,23 @@ async def enviar_mensagem(dados: MensagemChat):
     inserir_mensagem(dados.plantio_id, papel="usuario", texto=dados.texto)
     salvar_mensagem_chat(dados.plantio_id, papel="usuario", texto=dados.texto)
 
-    # 2. Obtém histórico recente do plantio
+    # 2. Obtém histórico recente e registro de fotos do plantio
     historico = listar_mensagens(dados.plantio_id)
+    fotos_contexto = obter_ultimas_fotos_plantio(dados.plantio_id)
+    caminhos_imagens = []
+    for f in fotos_contexto:
+        if f.get("caminho"):
+            c_disco = os.path.join(UPLOADS_DIR, os.path.basename(f["caminho"]))
+            if os.path.exists(c_disco) and c_disco not in caminhos_imagens:
+                caminhos_imagens.append(c_disco)
 
-    # 3. Gera resposta inteligente com Ollama
+    # 3. Gera resposta inteligente com Ollama com total visibilidade das fotos enviadas
     resposta = responder_chat_agronomico(
         planta_nome=plantio.get("planta_nome") or plantio.get("planta", "cultura"),
         mensagem_usuario=dados.texto,
         historico_mensagens=historico,
+        fotos_contexto=fotos_contexto,
+        caminhos_imagens=caminhos_imagens[:3],
     )
 
     # 4. Salva resposta no SQLite e MongoDB

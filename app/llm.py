@@ -99,19 +99,39 @@ def responder_chat_agronomico(
     planta_nome: str,
     mensagem_usuario: str,
     historico_mensagens: Optional[list] = None,
+    fotos_contexto: Optional[list] = None,
+    caminhos_imagens: Optional[list] = None,
     modelo: Optional[str] = None,
 ) -> str:
     """
-    Conversa interativa com o assistente agronômico usando o Ollama com contexto do plantio.
+    Conversa interativa com o assistente agronômico usando o Ollama.
+    O Ollama recebe o contexto completo do plantio e de todas as fotos/diagnósticos enviados.
     """
+    contexto_fotos_txt = ""
+    if fotos_contexto:
+        contexto_fotos_txt = "\n\nREGISTRO DAS FOTOGRAFIAS ENVIADAS PELO PRODUTOR E ANÁLISE DE VISÃO COMPUTACIONAL:"
+        for f in fotos_contexto:
+            sem = f.get("semana")
+            sem_str = f"Semana {sem} - " if sem is not None else ""
+            ordem = f.get("ordem", 1)
+            classe = f.get("classe_prevista", "desconhecida")
+            conf = (f.get("confianca") or 0.0) * 100
+            contexto_fotos_txt += f"\n- {sem_str}Foto {ordem}: classificada como '{classe}' (confiança do classificador: {conf:.1f}%)."
+        contexto_fotos_txt += (
+            "\n\nIMPORTANTE: Você tem total conhecimento e visibilidade sobre as fotografias e diagnósticos listados acima. "
+            "Se o usuário perguntar qualquer coisa sobre as fotos enviadas, qual folha está doente, como estão as folhas ou o que você observou nelas, "
+            "responda com base nos dados das fotografias e diagnósticos acima, explicando os sintomas e orientando o manejo."
+        )
+
     system_prompt = f"""
 Você é o assistente virtual agronômico inteligente do AgroSaúde.
 O usuário está cultivando {planta_nome}.
-Seu objetivo é orientar o produtor sobre boas práticas de manejo, irrigação, espaçamento, podas sanitárias e prevenção fitossanitária.
-REGRAS ÉTICAS:
-1. NUNCA prescreva produtos químicos sintéticos, agrotóxicos ou dosagens de venenos industriais.
+Seu objetivo é orientar o produtor sobre boas práticas de manejo, irrigação, espaçamento, podas sanitárias e prevenção fitossanitária.{contexto_fotos_txt}
+
+REGRAS ÉTICAS MANDATÓRIAS:
+1. NUNCA prescreva produtos químicos sintéticos, agrotóxicos ou dosagens de venenos industriais. Recomende exclusivamente práticas culturais e preventivas sustentáveis (poda sanitária, rotação de cultura, espaçamento, manejo de irrigação na base, solarização, barreiras físicas).
 2. Sempre recomende a consulta presencial a um engenheiro agrônomo ou técnico de extensão rural para diagnósticos definitivos e receituário agronômico.
-3. Seja claro, prestativo e acolhedor em português brasileiro.
+3. Seja claro, empático, prestativo e acolhedor em português brasileiro. Use parágrafos bem espaçados.
 """.strip()
 
     messages = [{"role": "system", "content": system_prompt}]
@@ -122,12 +142,26 @@ REGRAS ÉTICAS:
             papel = "user" if msg.get("papel") == "usuario" else "assistant"
             messages.append({"role": papel, "content": msg.get("texto", "")})
 
-    messages.append({"role": "user", "content": mensagem_usuario})
+    # Mensagem atual do usuário
+    user_msg_dict = {"role": "user", "content": mensagem_usuario}
+    messages.append(user_msg_dict)
+
+    client = obter_cliente_ollama()
+    modelo_alvo = modelo or OLLAMA_MODEL
+
+    # Tenta chamada multimodal se houver imagens em disco; se o modelo for textual (ex: llama3.2), cai no fallback textual
+    if caminhos_imagens:
+        try:
+            user_msg_dict["images"] = caminhos_imagens
+            resposta = client.chat(model=modelo_alvo, messages=messages)
+            return resposta["message"]["content"]
+        except Exception as e_multimodal:
+            print(f"[AVISO MULTIMODAL OLLAMA] Modelo não suporta imagens diretamente ({e_multimodal}). Utilizando contexto textual detalhado das fotos.")
+            user_msg_dict.pop("images", None)
 
     try:
-        client = obter_cliente_ollama()
         resposta = client.chat(
-            model=modelo or OLLAMA_MODEL,
+            model=modelo_alvo,
             messages=messages,
         )
         return resposta["message"]["content"]

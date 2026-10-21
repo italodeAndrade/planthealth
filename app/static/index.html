@@ -254,35 +254,180 @@
     .chat-container {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      max-height: 380px;
+      gap: 16px;
+      max-height: 480px;
+      min-height: 220px;
       overflow-y: auto;
-      padding-right: 6px;
+      padding: 14px 10px 14px 6px;
       margin-bottom: 14px;
+      scroll-behavior: smooth;
     }
-    .chat-msg {
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 13.5px;
-      line-height: 1.5;
-      max-width: 85%;
-      word-break: break-word;
+    .chat-container::-webkit-scrollbar {
+      width: 6px;
     }
-    .chat-msg-usuario {
+    .chat-container::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+    }
+    .chat-container::-webkit-scrollbar-thumb {
+      background: #1a3c28;
+      border-radius: 4px;
+    }
+    .chat-container::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    .chat-balao-wrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+      animation: fadeInMsg 0.25s ease-out;
+    }
+    .chat-balao-wrapper.usuario {
       align-self: flex-end;
-      background: #047857;
-      color: #f0fdf4;
-      border-bottom-right-radius: 2px;
+      align-items: flex-end;
     }
-    .chat-msg-assistente {
+    .chat-balao-wrapper.assistente {
       align-self: flex-start;
-      background: rgba(16, 34, 23, 0.95);
-      border: 1px solid var(--surface-border);
-      color: #e2e8f0;
-      border-bottom-left-radius: 2px;
-      white-space: pre-line;
+      align-items: flex-start;
     }
-    .chat-msg-assistente strong { color: #a7f3d0; }
+
+    .chat-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      padding: 0 4px;
+    }
+    .chat-header-meta .autor-tag {
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .chat-header-meta.usuario .autor-tag {
+      color: #6ee7b7;
+    }
+    .chat-header-meta.assistente .autor-tag {
+      color: #93c5fd;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-msg {
+      padding: 13px 18px;
+      font-size: 13.8px;
+      line-height: 1.6;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .chat-msg-usuario {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #ffffff;
+      border-radius: 18px 18px 4px 18px;
+      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+    }
+
+    .chat-msg-assistente {
+      background: rgba(14, 30, 21, 0.95);
+      border: 1px solid #1a3c28;
+      color: #f1f5f9;
+      border-radius: 18px 18px 18px 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .chat-msg-assistente p {
+      margin-bottom: 8px;
+    }
+    .chat-msg-assistente p:last-child {
+      margin-bottom: 0;
+    }
+    .chat-msg-assistente strong {
+      color: #a7f3d0;
+      font-weight: 600;
+    }
+    .chat-msg-assistente ul {
+      margin: 8px 0 8px 18px;
+      padding-left: 0;
+    }
+    .chat-msg-assistente li {
+      margin-bottom: 4px;
+    }
+
+    .chat-galeria-fotos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0 8px 0;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px dashed rgba(16, 185, 129, 0.35);
+    }
+    .chat-foto-miniatura {
+      display: flex;
+      flex-direction: column;
+      background: #091710;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .chat-foto-miniatura img {
+      width: 100%;
+      height: 75px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .chat-foto-miniatura img:hover {
+      transform: scale(1.05);
+    }
+    .chat-foto-info {
+      padding: 4px 6px;
+      font-size: 10px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .chat-foto-info .nome-classe {
+      font-weight: 600;
+      color: #a7f3d0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-foto-info .conf-tag {
+      color: #94a3b8;
+      font-size: 9px;
+    }
+
+    .chat-digitando {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #93c5fd;
+      font-size: 12px;
+      font-style: italic;
+    }
+    .chat-digitando .ponto {
+      width: 6px;
+      height: 6px;
+      background: #60a5fa;
+      border-radius: 50%;
+      animation: pulso 1.2s infinite ease-in-out;
+    }
+    .chat-digitando .ponto:nth-child(2) { animation-delay: 0.2s; }
+    .chat-digitando .ponto:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulso {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -408,10 +553,15 @@
         </div>
 
         <!-- Card de Chat Interativo com Ollama -->
-        <div class="card" id="cardChat">
-          <h2>💬 Assistente Virtual Agronômico (Ollama • GPU)</h2>
+        <div class="card" id="cardChat" style="border-top: 3px solid var(--primary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <h2 style="margin-bottom: 0;">💬 Assistente Virtual Agronômico (Ollama • GPU)</h2>
+            <span style="font-size: 11px; color: #a7f3d0; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 3px 9px; border-radius: 999px; font-weight: 600;">
+              👁️ Visão &amp; Fotos Integradas
+            </span>
+          </div>
           <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px;">
-            Converse em linguagem natural com o assistente inteligente sobre o manejo do plantio. Respostas geradas localmente pelo Ollama na GPU e persistidas no SQLite e MongoDB.
+            Tire dúvidas sobre manejo, irrigação ou diagnósticos. O assistente tem acesso direto aos dados do plantio e às fotografias de folhas analisadas.
           </p>
 
           <div class="chat-container" id="chatHistorico">
@@ -419,8 +569,10 @@
           </div>
 
           <form id="formChat" style="display: flex; gap: 10px; margin-top: 10px;">
-            <input type="text" id="chatTexto" placeholder="Ex: Qual a frequência recomendada de irrigação para esta fase?" style="flex: 1; margin-bottom: 0;" required>
-            <button type="submit" id="btnEnviarChat" style="width: auto; padding: 10px 20px;">Enviar</button>
+            <input type="text" id="chatTexto" placeholder="Pergunte ao agrônomo (ex: o que você viu na 2ª folha? ou como tratar a requeima?)..." style="flex: 1; margin-bottom: 0;" required>
+            <button type="submit" id="btnEnviarChat" style="width: auto; padding: 10px 22px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+              <span>Enviar</span> <span>➤</span>
+            </button>
           </form>
         </div>
       </main>
@@ -537,6 +689,100 @@
       }
     }
 
+    function formatarHora(dataStr) {
+      if (!dataStr) {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      try {
+        const d = new Date(dataStr.replace(' ', 'T'));
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function formatarMarkdown(texto) {
+      if (!texto) return '';
+      let safe = texto
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Cabeçalhos markdown
+      safe = safe.replace(/^### (.*$)/gim, '<h4 style="color:#a7f3d0; margin:10px 0 4px 0; font-size:14px; font-weight:700;">$1</h4>');
+      safe = safe.replace(/^## (.*$)/gim, '<h3 style="color:#a7f3d0; margin:12px 0 6px 0; font-size:15px; font-weight:700;">$1</h3>');
+      safe = safe.replace(/^# (.*$)/gim, '<h2 style="color:#a7f3d0; margin:14px 0 6px 0; font-size:16px; font-weight:700;">$1</h2>');
+
+      // Negrito
+      safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+      // Itálico
+      safe = safe.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+      // Listas com marcadores
+      safe = safe.replace(/^\s*[-*]\s+(.*$)/gim, '<li style="margin-bottom: 4px;">$1</li>');
+      safe = safe.replace(/(<li.*<\/li>)/gims, '<ul style="margin: 6px 0 8px 18px; padding-left: 0;">$1</ul>');
+
+      // Parágrafos
+      const paragrafos = safe.split(/\n\s*\n/);
+      return paragrafos.map(p => {
+        p = p.trim();
+        if (!p) return '';
+        if (p.startsWith('<h') || p.startsWith('<ul')) return p;
+        return `<p style="margin-bottom: 8px; line-height: 1.6;">${p.replace(/\n/g, '<br>')}</p>`;
+      }).join('');
+    }
+
+    function criarElementoBalao(m) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `chat-balao-wrapper ${m.papel}`;
+
+      const hora = formatarHora(m.criado_em);
+      const autorTag = m.papel === 'usuario'
+        ? '<span class="autor-tag">👤 Você</span>'
+        : '<span class="autor-tag">🌱 Assistente Agrônomo (Ollama • GPU)</span>';
+
+      const headerMeta = document.createElement('div');
+      headerMeta.className = `chat-header-meta ${m.papel}`;
+      headerMeta.innerHTML = `${autorTag} <span>${hora}</span>`;
+      wrapper.appendChild(headerMeta);
+
+      const balao = document.createElement('div');
+      balao.className = `chat-msg chat-msg-${m.papel}`;
+
+      let conteudoHtml = '';
+
+      // Se houver fotos vinculadas a este diagnóstico, exibe a galeria de miniaturas dentro do balão
+      if (m.fotos && m.fotos.length > 0) {
+        conteudoHtml += '<div style="font-size: 11px; font-weight: 600; color: #a7f3d0; margin-bottom: 4px;">📸 Fotografias Analisadas pelo Modelo:</div>';
+        conteudoHtml += '<div class="chat-galeria-fotos">';
+        m.fotos.forEach(f => {
+          const nomeCurto = (f.classe_prevista || 'desconhecida').replace(/.*___/, '').replace(/_/g, ' ');
+          const conf = f.confianca ? (f.confianca * 100).toFixed(1) + '%' : '';
+          const corBadge = (f.classe_prevista || '').includes('healthy') ? '#10b981' : '#f59e0b';
+          conteudoHtml += `
+            <div class="chat-foto-miniatura">
+              <a href="${f.caminho}" target="_blank" title="Clique para ver foto ampliada">
+                <img src="${f.caminho}" alt="Folha ${f.ordem}">
+              </a>
+              <div class="chat-foto-info">
+                <div class="nome-classe" style="color: ${corBadge};" title="${f.classe_prevista}">Folha ${f.ordem}: ${nomeCurto}</div>
+                <div class="conf-tag">${conf} conf.</div>
+              </div>
+            </div>
+          `;
+        });
+        conteudoHtml += '</div>';
+      }
+
+      conteudoHtml += `<div class="chat-texto-corpo">${formatarMarkdown(m.texto)}</div>`;
+      balao.innerHTML = conteudoHtml;
+      wrapper.appendChild(balao);
+
+      return wrapper;
+    }
+
     async function carregarPlantio() {
       const plantioId = document.getElementById('selectPlantioAtivo').value;
       atualizarAvisoModeloAtivo();
@@ -549,15 +795,19 @@
         container.innerHTML = '';
 
         if (!data.mensagens || data.mensagens.length === 0) {
-          container.innerHTML = '<div style="color: #64748b; font-size: 13px; font-style: italic;">Nenhuma mensagem registrada ainda. Envie sua primeira pergunta ao assistente!</div>';
+          container.innerHTML = `
+            <div style="background: rgba(16, 34, 23, 0.6); border: 1px dashed var(--surface-border); border-radius: 12px; padding: 16px; text-align: center; color: #94a3b8; font-size: 13px; line-height: 1.6;">
+              🌱 <strong>Assistente Virtual Agronômico Pronto!</strong><br>
+              Envie suas dúvidas sobre manejo, rega, adubação ou sintomas foliares.<br>
+              O assistente tem acesso direto aos diagnósticos e fotos das folhas deste plantio.
+            </div>
+          `;
           return;
         }
 
         data.mensagens.forEach(m => {
-          const div = document.createElement('div');
-          div.className = `chat-msg chat-msg-${m.papel}`;
-          div.innerHTML = m.texto;
-          container.appendChild(div);
+          const elBalao = criarElementoBalao(m);
+          container.appendChild(elBalao);
         });
 
         container.scrollTop = container.scrollHeight;
@@ -673,20 +923,32 @@
       if (!texto) return;
 
       const container = document.getElementById('chatHistorico');
-      const divUser = document.createElement('div');
-      divUser.className = 'chat-msg chat-msg-usuario';
-      divUser.textContent = texto;
-      container.appendChild(divUser);
+
+      // Balão de Envio do Usuário
+      const elUser = criarElementoBalao({ papel: 'usuario', texto: texto, criado_em: null });
+      container.appendChild(elUser);
       input.value = '';
 
       const btn = document.getElementById('btnEnviarChat');
       btn.disabled = true;
-      btn.textContent = 'Pensando...';
+      btn.textContent = 'Enviando...';
 
-      const divAssistente = document.createElement('div');
-      divAssistente.className = 'chat-msg chat-msg-assistente';
-      divAssistente.textContent = 'Digitando resposta com Ollama (GPU)...';
-      container.appendChild(divAssistente);
+      // Balão Temporário com Indicador Animado do Assistente
+      const wrapperAssistente = document.createElement('div');
+      wrapperAssistente.className = 'chat-balao-wrapper assistente';
+      wrapperAssistente.innerHTML = `
+        <div class="chat-header-meta assistente">
+          <span class="autor-tag">🌱 Assistente Agrônomo (Ollama • GPU)</span>
+          <span>${formatarHora()}</span>
+        </div>
+        <div class="chat-msg chat-msg-assistente">
+          <div class="chat-digitando">
+            <span class="ponto"></span><span class="ponto"></span><span class="ponto"></span>
+            <span>Ollama analisando sintomas e redigindo orientação...</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(wrapperAssistente);
       container.scrollTop = container.scrollHeight;
 
       try {
@@ -696,13 +958,15 @@
           body: JSON.stringify({ plantio_id: parseInt(plantioId), texto })
         });
         const data = await res.json();
+        const balaoCorpo = wrapperAssistente.querySelector('.chat-msg-assistente');
         if (res.ok) {
-          divAssistente.textContent = data.resposta;
+          balaoCorpo.innerHTML = `<div class="chat-texto-corpo">${formatarMarkdown(data.resposta)}</div>`;
         } else {
-          divAssistente.textContent = 'Erro ao processar mensagem com a IA.';
+          balaoCorpo.innerHTML = `<span style="color: #fca5a5;">Erro ao processar mensagem com o Ollama: ${data.detail || 'erro interno'}</span>`;
         }
       } catch (err) {
-        divAssistente.textContent = 'Erro de comunicação: ' + err.message;
+        const balaoCorpo = wrapperAssistente.querySelector('.chat-msg-assistente');
+        balaoCorpo.innerHTML = `<span style="color: #fca5a5;">Erro de comunicação: ${err.message}</span>`;
       } finally {
         btn.disabled = false;
         btn.textContent = 'Enviar';

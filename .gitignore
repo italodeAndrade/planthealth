@@ -2,6 +2,9 @@
 escolha/
 dados/plantvillage/
 dados/fotos_reais/
+scripts/baixar_dados.sh
+agro_saude.db
+teste_agro_saude.db
 
 # Diretório de uploads e banco SQLite
 dados/uploads/*

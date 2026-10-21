@@ -188,7 +188,7 @@ def inserir_mensagem(
 
 
 def listar_mensagens(plantio_id: int) -> List[Dict[str, Any]]:
-    """Lista as mensagens do chat de um plantio."""
+    """Lista as mensagens do chat de um plantio com as fotos associadas (se houver)."""
     with obter_conexao() as conn:
         cursor = conn.execute(
             """
@@ -199,4 +199,39 @@ def listar_mensagens(plantio_id: int) -> List[Dict[str, Any]]:
             """,
             (plantio_id,),
         )
+        mensagens = [dict(row) for row in cursor.fetchall()]
+
+        # Carrega as fotos vinculadas às atualizações
+        for m in mensagens:
+            if m.get("atualizacao_id"):
+                c_fotos = conn.execute(
+                    """
+                    SELECT ordem, caminho, classe_prevista, confianca
+                    FROM foto
+                    WHERE atualizacao_id = ?
+                    ORDER BY ordem ASC
+                    """,
+                    (m["atualizacao_id"],),
+                )
+                m["fotos"] = [dict(r) for r in c_fotos.fetchall()]
+            else:
+                m["fotos"] = []
+        return mensagens
+
+
+def obter_ultimas_fotos_plantio(plantio_id: int, limite_atualizacoes: int = 3) -> List[Dict[str, Any]]:
+    """Retorna as fotos e diagnósticos dos envios mais recentes do plantio para contexto do Ollama."""
+    with obter_conexao() as conn:
+        cursor = conn.execute(
+            """
+            SELECT a.id AS atualizacao_id, a.semana, a.status, a.folhas_com_doenca, a.enviado_em,
+                   f.ordem, f.caminho, f.classe_prevista, f.confianca
+            FROM atualizacao a
+            JOIN foto f ON f.atualizacao_id = a.id
+            WHERE a.plantio_id = ?
+            ORDER BY a.enviado_em DESC, f.ordem ASC
+            """,
+            (plantio_id,),
+        )
         return [dict(row) for row in cursor.fetchall()]
+
