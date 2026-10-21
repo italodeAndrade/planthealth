@@ -15,7 +15,6 @@ from app.bd_nosql import (
     DB_NAME,
     obter_cliente,
     salvar_atualizacao_nosql,
-    salvar_log_treino_colab,
     salvar_mensagem_chat,
 )
 from app.bd_relacional import (
@@ -31,7 +30,12 @@ from app.bd_relacional import (
     obter_historico,
     obter_plantio,
 )
-from app.inferencia import classificar_foto, combinar_diagnosticos
+from app.inferencia import (
+    ModeloIndisponivelError,
+    classificar_foto,
+    combinar_diagnosticos,
+    modelos_disponiveis,
+)
 from app.llm import (
     OLLAMA_HOST,
     OLLAMA_MODEL,
@@ -90,25 +94,12 @@ class AtualizacaoManual(BaseModel):
     status: str = Field(..., example="doenca")
     folhas_doentes: int = Field(..., ge=0, le=3, example=2)
     semana: Optional[int] = Field(3, example=3)
+    doencas: Optional[List[str]] = Field(None, example=["Early blight"])
 
 
 class MensagemChat(BaseModel):
     plantio_id: int
     texto: str
-
-
-class LogTreinoColab(BaseModel):
-    planta: str = Field("batata", example="batata")
-    versao: str = Field("v1", example="v1")
-    arquitetura: str = Field("MobileNetV2", example="MobileNetV2")
-    classes: List[str] = Field(..., example=["Potato___Early_blight", "Potato___Late_blight", "Potato___healthy"])
-    limiar: float = Field(0.70, example=0.70)
-    acuracia_teste: float = Field(..., example=0.945)
-    f1_macro_teste: float = Field(..., example=0.941)
-    metricas: Dict[str, Any] = Field(..., example={"precisao_macro": 0.943, "revocacao_macro": 0.940})
-    matriz_confusao: Dict[str, Any] = Field(..., example={"classes": ["Early", "Late", "Healthy"], "valores": [[95, 3, 2], [2, 94, 4], [1, 2, 97]]})
-    hiperparametros: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    caminho_pesos: Optional[str] = Field("modelos/batata.onnx", example="modelos/batata.onnx")
 
 
 class OllamaChatRequest(BaseModel):
@@ -193,7 +184,14 @@ async def health_check():
             "modelos_disponiveis": modelos_ollama,
             "erro": ollama_erro,
         },
+        "modelos_visao": modelos_disponiveis(),
     }
+
+
+@app.get("/api/modelos")
+async def get_modelos():
+    """Retorna o status de disponibilidade dos modelos ONNX para cada cultura."""
+    return modelos_disponiveis()
 
 
 @app.get("/api/plantas")
@@ -252,29 +250,35 @@ async def enviar_atualizacao_semanal(
     if not plantio:
         raise HTTPException(status_code=404, detail="Plantio não encontrado.")
 
+    cultura = plantio.get("planta", "batata")
     fotos_processadas = []
 
-    for idx, upload_file in enumerate(fotos, start=1):
-        ext = os.path.splitext(upload_file.filename or "")[1] or ".jpg"
-        nome_arquivo = f"plantio_{plantio_id}_sem{semana}_f{idx}_{os.urandom(4).hex()}{ext}"
-        caminho_disco = os.path.join(UPLOADS_DIR, nome_arquivo)
+    try:
+        for idx, upload_file in enumerate(fotos, start=1):
+            ext = os.path.splitext(upload_file.filename or "")[1] or ".jpg"
+            nome_arquivo = f"plantio_{plantio_id}_sem{semana}_f{idx}_{os.urandom(4).hex()}{ext}"
+            caminho_disco = os.path.join(UPLOADS_DIR, nome_arquivo)
 
-        with open(caminho_disco, "wb") as buffer:
-            shutil.copyfileobj(upload_file.file, buffer)
+            with open(caminho_disco, "wb") as buffer:
+                shutil.copyfileobj(upload_file.file, buffer)
 
-        # Classificação da imagem
-        resultado_foto = classificar_foto(caminho_disco, ordem=idx)
-        resultado_foto["caminho"] = f"/uploads/{nome_arquivo}"
-        fotos_processadas.append(resultado_foto)
+            # Classificação da imagem usando o modelo específico da cultura
+            resultado_foto = classificar_foto(caminho_disco, ordem=idx, planta=cultura)
+            resultado_foto["caminho"] = f"/uploads/{nome_arquivo}"
+            fotos_processadas.append(resultado_foto)
+    except ModeloIndisponivelError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao processar imagens: {e}")
 
-    # 1. Regra de decisão das 3 folhas com limiar de confiança (Seção 4.4 do ABNT)
-    status, folhas_doentes, orientacao_adicional = combinar_diagnosticos(fotos_processadas, limiar=limiar)
+    # 1. Regra de decisão das 3 folhas com limiar de confiança
+    status, folhas_doentes, orientacao_adicional, doencas = combinar_diagnosticos(fotos_processadas, limiar=limiar)
 
-    # 2. Consulta da fase fenológica de referência agronômica (Seção 5 do ABNT)
+    # 2. Consulta da fase fenológica de referência agronômica
     ref_fase = obter_fase_cultura(plantio["planta"], semana)
     fase_esperada = ref_fase["fase"] if ref_fase else None
 
-    # 3. Geração do relatório com Ollama respeitando restrições éticas da Seção 7
+    # 3. Geração do relatório com Ollama respeitando restrições éticas
     relatorio = gerar_relatorio_agronomico(
         planta=plantio["planta_nome"],
         status=status,
@@ -282,6 +286,7 @@ async def enviar_atualizacao_semanal(
         semana=semana,
         fase_esperada=fase_esperada,
         orientacao_adicional=orientacao_adicional,
+        doencas=doencas,
     )
 
     # 4. Persistência Relacional (SQLite - Core Estrutural)
@@ -313,6 +318,7 @@ async def enviar_atualizacao_semanal(
         "fase_esperada": fase_esperada,
         "status": status,
         "folhas_com_doenca": folhas_doentes,
+        "doencas": doencas,
         "altura_cm": altura_cm,
         "n_folhas": n_folhas,
         "fotos": fotos_processadas,
@@ -331,6 +337,7 @@ async def enviar_atualizacao_semanal(
         "atualizacao_id": atualizacao_id,
         "status": status,
         "folhas_com_doenca": folhas_doentes,
+        "doencas_detectadas": doencas,
         "fase_esperada": fase_esperada,
         "orientacao_adicional": orientacao_adicional,
         "fotos": fotos_processadas,
@@ -340,7 +347,7 @@ async def enviar_atualizacao_semanal(
 
 @app.post("/api/gerar-relatorio")
 async def api_gerar_relatorio(dados: AtualizacaoManual):
-    """Endpoint direto para teste pontual da LLM (TDE2 / PjBL2)."""
+    """Endpoint direto para teste pontual da LLM."""
     ref_fase = obter_fase_cultura(dados.planta.lower(), dados.semana or 3)
     fase_esperada = ref_fase["fase"] if ref_fase else None
 
@@ -350,6 +357,7 @@ async def api_gerar_relatorio(dados: AtualizacaoManual):
         folhas_doentes=dados.folhas_doentes,
         semana=dados.semana,
         fase_esperada=fase_esperada,
+        doencas=dados.doencas,
     )
     return {
         "sucesso": True,
@@ -453,50 +461,3 @@ async def enviar_mensagem(dados: MensagemChat):
     salvar_mensagem_chat(dados.plantio_id, papel="assistente", texto=resposta)
 
     return {"sucesso": True, "resposta": resposta}
-
-
-@app.post("/api/colab/registrar-modelo")
-async def registrar_modelo_colab(dados: LogTreinoColab):
-    """
-    Endpoint para o Google Colab registrar os artefatos de treino (Seção 3.2 do ABNT):
-    - Salva logs densos e matriz de confusão no MongoDB (coleção colab_logs_modelos)
-    - Registra a versão e caminho do arquivo .onnx no SQLite (tabela modelo)
-    """
-    # 1. MongoDB (Artefatos Densos)
-    mongo_id = salvar_log_treino_colab(dados.model_dump())
-
-    # 2. SQLite (Metadados Estruturais)
-    with obter_conexao() as conn:
-        conn.execute(
-            """
-            INSERT INTO modelo (
-                planta, versao, arquitetura, treinado_em, classes, limiar,
-                acuracia_teste, f1_macro_teste, metricas, caminho, ativo
-            )
-            VALUES (?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, 1)
-            ON CONFLICT(planta, versao) DO UPDATE SET
-                acuracia_teste = excluded.acuracia_teste,
-                f1_macro_teste = excluded.f1_macro_teste,
-                metricas = excluded.metricas,
-                caminho = excluded.caminho,
-                ativo = 1
-            """,
-            (
-                dados.planta,
-                dados.versao,
-                dados.arquitetura,
-                json.dumps(dados.classes),
-                dados.limiar,
-                dados.acuracia_teste,
-                dados.f1_macro_teste,
-                json.dumps(dados.metricas),
-                dados.caminho_pesos or "modelos/batata.onnx",
-            ),
-        )
-        conn.commit()
-
-    return {
-        "sucesso": True,
-        "mensagem": f"Modelo {dados.planta} {dados.versao} registrado com sucesso!",
-        "mongo_log_id": mongo_id,
-    }

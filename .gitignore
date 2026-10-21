@@ -1,7 +1,39 @@
-# Imagens da base (baixadas por scripts/baixar_dados.sh, não versionadas)
+# Base de dados de imagens local (dataset PlantVillage)
+escolha/
+
+# Diretório de uploads e banco SQLite
+dados/uploads/*
+!dados/uploads/.gitkeep
+banco/*.db
+
+# Python e ambientes virtuais
+__pycache__/
+*.py[cod]
+*$py.class
+plant/
+.env
+.venv/
+env/
+venv/
+
+# Modelos binários exportados (pesados)
+modelos/*.onnx
+!modelos/README.md
+# PjBL2: modelos finais entregues no repositório (~9 MB cada), com classes, métricas e figuras
+!modelos/batata.onnx
+!modelos/milho.onnx
+!modelos/tomate.onnx
+!modelos/*.classes.json
+!modelos/metricas_*.json
+!modelos/*.png
+
+# PjBL2: imagens do PlantVillage baixadas por scripts/baixar_dados.sh (não versionadas)
 dados/plantvillage/
 dados/fotos_reais/
-# Ambiente / cache
-.venv/
-__pycache__/
 .ipynb_checkpoints/
+
+# Logs e arquivos temporários
+*.log
+.DS_Store
+
+.
