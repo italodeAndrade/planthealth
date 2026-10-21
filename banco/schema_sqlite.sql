@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS foto (
 );
 
 -- Mensagens do chat do plantio ----------------------------------------
+-- NOTA: O histórico de chat é armazenado exclusivamente no MongoDB NoSQL (coleção 'mensagens')
 CREATE TABLE IF NOT EXISTS mensagem (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     plantio_id        INTEGER NOT NULL REFERENCES plantio(id) ON DELETE CASCADE,

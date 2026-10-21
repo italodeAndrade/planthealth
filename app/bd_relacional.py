@@ -174,7 +174,7 @@ def inserir_mensagem(
     texto: str,
     atualizacao_id: Optional[int] = None,
 ) -> int:
-    """Insere mensagem no chat do plantio."""
+    """[LEGADO] As mensagens de chat agora são armazenadas exclusivamente no MongoDB (app.bd_nosql)."""
     with obter_conexao() as conn:
         cursor = conn.execute(
             """
@@ -188,7 +188,7 @@ def inserir_mensagem(
 
 
 def listar_mensagens(plantio_id: int) -> List[Dict[str, Any]]:
-    """Lista as mensagens do chat de um plantio com as fotos associadas (se houver)."""
+    """[LEGADO] As mensagens de chat agora são recuperadas exclusivamente do MongoDB (app.bd_nosql)."""
     with obter_conexao() as conn:
         cursor = conn.execute(
             """

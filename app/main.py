@@ -22,8 +22,6 @@ from app.bd_relacional import (
     criar_plantio,
     inicializar_banco,
     inserir_atualizacao,
-    inserir_mensagem,
-    listar_mensagens,
     listar_plantas,
     listar_plantios,
     obter_conexao,
@@ -223,11 +221,8 @@ async def get_detalhes_plantio(plantio_id: int):
         raise HTTPException(status_code=404, detail="Plantio não encontrado")
 
     historico = obter_historico(plantio_id)
-    # 1. Tenta carregar histórico de mensagens primariamente do MongoDB (NoSQL)
+    # Mensagens de chat são armazenadas e recuperadas exclusivamente do MongoDB (NoSQL)
     mensagens = listar_mensagens_chat(plantio_id)
-    # 2. Fallback para SQLite relacional se MongoDB indisponível ou vazio
-    if not mensagens:
-        mensagens = listar_mensagens(plantio_id)
 
     return {
         "plantio": plantio,
@@ -308,14 +303,6 @@ async def enviar_atualizacao_semanal(
         llm_usada=True,
         altura_cm=altura_cm,
         n_folhas=n_folhas,
-    )
-
-    # Inserção da mensagem no histórico de chat
-    inserir_mensagem(
-        plantio_id=plantio_id,
-        papel="assistente",
-        texto=f"🌱 **Atualização da Semana {semana} ({status.upper()}):**\n\n{relatorio}",
-        atualizacao_id=atualizacao_id,
     )
 
     # 5. Persistência NoSQL (MongoDB - Coleção atualizacoes e mensagens)
@@ -450,12 +437,11 @@ async def enviar_mensagem(dados: MensagemChat):
     if not plantio:
         raise HTTPException(status_code=404, detail="Plantio não encontrado")
 
-    # 1. Salva pergunta do usuário
-    inserir_mensagem(dados.plantio_id, papel="usuario", texto=dados.texto)
+    # 1. Salva pergunta do usuário no MongoDB (NoSQL)
     salvar_mensagem_chat(dados.plantio_id, papel="usuario", texto=dados.texto)
 
-    # 2. Obtém histórico recente e registro de fotos do plantio
-    historico = listar_mensagens(dados.plantio_id)
+    # 2. Obtém histórico recente do chat (MongoDB) e fotos do plantio
+    historico = listar_mensagens_chat(dados.plantio_id)
     fotos_contexto = obter_ultimas_fotos_plantio(dados.plantio_id)
     caminhos_imagens = []
     for f in fotos_contexto:
@@ -473,8 +459,7 @@ async def enviar_mensagem(dados: MensagemChat):
         caminhos_imagens=caminhos_imagens[:3],
     )
 
-    # 4. Salva resposta no SQLite e MongoDB
-    inserir_mensagem(dados.plantio_id, papel="assistente", texto=resposta)
+    # 4. Salva resposta gerada exclusivamente no MongoDB (NoSQL)
     salvar_mensagem_chat(dados.plantio_id, papel="assistente", texto=resposta)
 
     return {"sucesso": True, "resposta": resposta}
