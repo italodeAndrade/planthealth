@@ -1,27 +1,31 @@
-# Base de dados de imagens local (dataset PlantVillage)
+# Base de dados de imagens (locais e baixadas por scripts)
 escolha/
+dados/plantvillage/
+dados/fotos_reais/
 
 # Diretório de uploads e banco SQLite
 dados/uploads/*
 !dados/uploads/.gitkeep
 banco/*.db
 
-# Python e ambientes virtuais
+# Python, Jupyter e ambientes virtuais
 __pycache__/
 *.py[cod]
 *$py.class
+.ipynb_checkpoints/
 plant/
 .env
 .venv/
 env/
 venv/
 
-# Modelos binários exportados (pesados)
+# Modelos do AgroSaúde (permite os 3 modelos das culturas no repositório)
 modelos/*.onnx
+!modelos/batata.onnx
+!modelos/tomate.onnx
+!modelos/milho.onnx
 !modelos/README.md
 
-# Logs e arquivos temporários
+# Logs e arquivos temporários de sistema
 *.log
 .DS_Store
-
-.

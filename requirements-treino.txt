@@ -1,0 +1,12 @@
+# Dependências apenas para o treino/avaliação do PjBL2 (não são usadas pelo app)
+# CPU: pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+torch>=2.2
+torchvision>=0.17
+scikit-learn>=1.3
+pandas>=2.0
+matplotlib>=3.7
+pillow>=10.0
+numpy>=1.24
+onnx>=1.15
+onnxruntime>=1.17
+jupyter

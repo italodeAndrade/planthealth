@@ -1,0 +1,35 @@
+{
+  "semente": 42,
+  "proporcao": {
+    "treino": 0.7,
+    "validacao": 0.15,
+    "teste": 0.15
+  },
+  "fonte": "PlantVillage (raw/color) – github.com/spMohanty/PlantVillage-Dataset",
+  "contagem": {
+    "Potato___Early_blight": {
+      "treino": 700,
+      "validacao": 150,
+      "teste": 150,
+      "total": 1000
+    },
+    "Potato___Late_blight": {
+      "treino": 700,
+      "validacao": 150,
+      "teste": 150,
+      "total": 1000
+    },
+    "Potato___healthy": {
+      "treino": 106,
+      "validacao": 23,
+      "teste": 23,
+      "total": 152
+    },
+    "total": {
+      "treino": 1506,
+      "validacao": 323,
+      "teste": 323,
+      "total": 2152
+    }
+  }
+}
