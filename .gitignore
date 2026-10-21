@@ -1,0 +1,27 @@
+# Base de dados de imagens local (dataset PlantVillage)
+escolha/
+
+# Diretório de uploads e banco SQLite
+dados/uploads/*
+!dados/uploads/.gitkeep
+banco/*.db
+
+# Python e ambientes virtuais
+__pycache__/
+*.py[cod]
+*$py.class
+plant/
+.env
+.venv/
+env/
+venv/
+
+# Modelos binários exportados (pesados)
+modelos/*.onnx
+!modelos/README.md
+
+# Logs e arquivos temporários
+*.log
+.DS_Store
+
+.

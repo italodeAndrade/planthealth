@@ -33,6 +33,7 @@ def gerar_relatorio_agronomico(
     semana: Optional[int] = None,
     fase_esperada: Optional[str] = None,
     orientacao_adicional: Optional[str] = None,
+    doencas: Optional[list] = None,
 ) -> str:
     """
     Envia o diagnóstico estruturado para o Ollama local e retorna o relatório explicativo.
@@ -41,6 +42,7 @@ def gerar_relatorio_agronomico(
     semana_txt = f"Semana atual do ciclo: {semana}." if semana is not None else ""
     fase_txt = f"Fase fenológica esperada: '{fase_esperada}'." if fase_esperada else ""
     adicional_txt = f"Observação do classificador: {orientacao_adicional}" if orientacao_adicional else ""
+    doencas_txt = f"Doenças identificadas pelo modelo: {', '.join(doencas)}." if doencas else ""
 
     prompt = f"""
 Você é o assistente virtual agronômico do sistema AgroSaúde, desenvolvido para apoiar pequenos produtores no manejo sustentável.
@@ -51,13 +53,15 @@ Diagnóstico da Visão Computacional:
 {semana_txt}
 {fase_txt}
 {adicional_txt}
+{doencas_txt}
 
 Instruções para o relatório:
 1. Redija um texto conciso, empático e em linguagem simples e acessível.
 2. Explique o que o resultado significa para o produtor e a importância de monitorar semanalmente.
 3. Se o status for 'incerto', recomende o reenvio de fotografias com boa iluminação, fundo neutro e uma folha por foto.
 4. Sugira exclusivamente práticas culturais e preventivas de manejo (poda sanitária, rotação, espaçamento, irrigação na base evitando molhar as folhas, drenagem e isolamento).
-5. REGRA ÉTICA MANDATÓRIA (Seção 7 ABNT): Você NUNCA deve prescrever produtos químicos, agrotóxicos, pesticidas industriais ou dosagens. Recomende sempre a avaliação presencial de um engenheiro agrônomo ou técnico de extensão rural.
+5. REGRA ÉTICA MANDATÓRIA: Você NUNCA deve prescrever ou citar produtos químicos, agrotóxicos, fungicidas, inseticidas, pesticidas industriais ou dosagens. Recomende sempre a avaliação presencial de um engenheiro agrônomo ou técnico de extensão rural.
+6. Escreva em português do Brasil, em até 3 parágrafos curtos. Não use placeholders como [nome do produtor] nem assinatura; comece direto pelo conteúdo.
 """.strip()
 
     try:
