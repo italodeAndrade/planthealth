@@ -1,0 +1,12 @@
+classe,treino,validacao,teste,treino_usado,total
+Tomato___Bacterial_spot,1489,319,319,800,2127
+Tomato___Early_blight,700,150,150,700,1000
+Tomato___Late_blight,1337,286,286,800,1909
+Tomato___Leaf_Mold,666,143,143,666,952
+Tomato___Septoria_leaf_spot,1240,265,266,800,1771
+Tomato___Spider_mites Two-spotted_spider_mite,1173,252,251,800,1676
+Tomato___Target_Spot,983,210,211,800,1404
+Tomato___Tomato_Yellow_Leaf_Curl_Virus,3750,804,803,800,5357
+Tomato___Tomato_mosaic_virus,261,56,56,261,373
+Tomato___healthy,1113,239,239,800,1591
+total,12712,2724,2724,7227,18160

@@ -1,0 +1,382 @@
+{
+  "planta": "tomate",
+  "versao": "v1",
+  "arquitetura": "MobileNetV2 (ImageNet, transferência de aprendizado)",
+  "treinado_em": "2026-10-21T20:38:36.328493+00:00",
+  "classes": [
+    "Tomato___Bacterial_spot",
+    "Tomato___Early_blight",
+    "Tomato___Late_blight",
+    "Tomato___Leaf_Mold",
+    "Tomato___Septoria_leaf_spot",
+    "Tomato___Spider_mites Two-spotted_spider_mite",
+    "Tomato___Target_Spot",
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "Tomato___Tomato_mosaic_virus",
+    "Tomato___healthy"
+  ],
+  "limiar": 0.63,
+  "ambiente": {
+    "plataforma": "cpu",
+    "torch": "2.14.1+cpu",
+    "threads": 8,
+    "tempo_total_min": 28.2
+  },
+  "divisao": {
+    "treino": 12712,
+    "treino_usado": 7227,
+    "validacao": 2724,
+    "teste": 2724,
+    "proporcao": "70/15/15 estratificada",
+    "semente": 42,
+    "arquivo_treino": "treino_limitado.csv"
+  },
+  "hiperparametros": {
+    "lote": 32,
+    "epocas_etapa1": 6,
+    "lr_etapa1": 0.001,
+    "epocas_etapa2": 6,
+    "lr_etapa2": 0.0001,
+    "blocos_descongelados_etapa2": 5,
+    "otimizador": "Adam",
+    "weight_decay": 0.0001,
+    "dropout": 0.2,
+    "tamanho_entrada": 224,
+    "semente": 42,
+    "pesos_classe": "inverso da frequência",
+    "treino_csv": "treino_limitado.csv"
+  },
+  "melhor_epoca_validacao": 11,
+  "teste": {
+    "acuracia": 0.948237885462555,
+    "precisao_macro": 0.9504275507164921,
+    "revocacao_macro": 0.9356857042547378,
+    "f1_macro": 0.9401758985445475,
+    "f1_ponderado": 0.9481628237297703,
+    "por_classe": {
+      "Tomato___Bacterial_spot": {
+        "precisao": 0.9214501510574018,
+        "revocacao": 0.9561128526645768,
+        "f1": 0.9384615384615385,
+        "suporte": 319
+      },
+      "Tomato___Early_blight": {
+        "precisao": 1.0,
+        "revocacao": 0.7466666666666667,
+        "f1": 0.8549618320610687,
+        "suporte": 150
+      },
+      "Tomato___Late_blight": {
+        "precisao": 0.9676258992805755,
+        "revocacao": 0.9405594405594405,
+        "f1": 0.9539007092198581,
+        "suporte": 286
+      },
+      "Tomato___Leaf_Mold": {
+        "precisao": 0.9854014598540146,
+        "revocacao": 0.9440559440559441,
+        "f1": 0.9642857142857143,
+        "suporte": 143
+      },
+      "Tomato___Septoria_leaf_spot": {
+        "precisao": 0.9110320284697508,
+        "revocacao": 0.9624060150375939,
+        "f1": 0.9360146252285192,
+        "suporte": 266
+      },
+      "Tomato___Spider_mites Two-spotted_spider_mite": {
+        "precisao": 0.8250825082508251,
+        "revocacao": 0.9960159362549801,
+        "f1": 0.9025270758122743,
+        "suporte": 251
+      },
+      "Tomato___Target_Spot": {
+        "precisao": 0.9166666666666666,
+        "revocacao": 0.8862559241706162,
+        "f1": 0.9012048192771084,
+        "suporte": 211
+      },
+      "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+        "precisao": 0.9936143039591315,
+        "revocacao": 0.9688667496886675,
+        "f1": 0.9810844892812106,
+        "suporte": 803
+      },
+      "Tomato___Tomato_mosaic_virus": {
+        "precisao": 1.0,
+        "revocacao": 0.9642857142857143,
+        "f1": 0.9818181818181818,
+        "suporte": 56
+      },
+      "Tomato___healthy": {
+        "precisao": 0.983402489626556,
+        "revocacao": 0.9916317991631799,
+        "f1": 0.9875,
+        "suporte": 239
+      }
+    },
+    "com_limiar": {
+      "cobertura": 0.9643906020558003,
+      "acuracia_aceitas": 0.9657403882755995
+    }
+  },
+  "validacao": {
+    "acuracia": 0.9530102790014684,
+    "f1_macro": 0.9413362564787169
+  },
+  "matriz_confusao": {
+    "classes": [
+      "Tomato___Bacterial_spot",
+      "Tomato___Early_blight",
+      "Tomato___Late_blight",
+      "Tomato___Leaf_Mold",
+      "Tomato___Septoria_leaf_spot",
+      "Tomato___Spider_mites Two-spotted_spider_mite",
+      "Tomato___Target_Spot",
+      "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+      "Tomato___Tomato_mosaic_virus",
+      "Tomato___healthy"
+    ],
+    "valores": [
+      [
+        305,
+        0,
+        1,
+        0,
+        6,
+        0,
+        7,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        112,
+        8,
+        0,
+        12,
+        7,
+        6,
+        1,
+        0,
+        0
+      ],
+      [
+        3,
+        0,
+        269,
+        1,
+        3,
+        2,
+        1,
+        4,
+        0,
+        3
+      ],
+      [
+        0,
+        0,
+        0,
+        135,
+        1,
+        7,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        256,
+        7,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1,
+        250,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        2,
+        21,
+        187,
+        0,
+        0,
+        1
+      ],
+      [
+        19,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0,
+        778,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        54,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        237
+      ]
+    ],
+    "linhas": "real",
+    "colunas": "prevista"
+  },
+  "onnx": {
+    "arquivo": "modelos/tomate.onnx",
+    "entrada": "input (lote, 3, 224, 224) float32, ImageNet",
+    "saida": "logits (lote, 10) – aplicar softmax",
+    "dif_max_vs_pytorch": 3.4868717193603516e-06,
+    "concordancia_vs_pytorch": "2724/2724"
+  },
+  "historico": [
+    {
+      "etapa": 1,
+      "epoca": 1,
+      "perda_treino": 1.1339454022419804,
+      "acc_treino": 0.6632074166320742,
+      "perda_val": 0.6270221471786499,
+      "acc_val": 0.8138766519823789,
+      "f1_macro_val": 0.7612125644451156
+    },
+    {
+      "etapa": 1,
+      "epoca": 2,
+      "perda_treino": 0.6233182122586294,
+      "acc_treino": 0.8109865781098657,
+      "perda_val": 0.4989601671695709,
+      "acc_val": 0.8480176211453745,
+      "f1_macro_val": 0.8096949386725617
+    },
+    {
+      "etapa": 1,
+      "epoca": 3,
+      "perda_treino": 0.5313579624200966,
+      "acc_treino": 0.8314653383146534,
+      "perda_val": 0.4432436227798462,
+      "acc_val": 0.855359765051395,
+      "f1_macro_val": 0.8243698662352852
+    },
+    {
+      "etapa": 1,
+      "epoca": 4,
+      "perda_treino": 0.4746319383106506,
+      "acc_treino": 0.8473778884737789,
+      "perda_val": 0.39027267694473267,
+      "acc_val": 0.8784875183553598,
+      "f1_macro_val": 0.8456266339989563
+    },
+    {
+      "etapa": 1,
+      "epoca": 5,
+      "perda_treino": 0.43794487206639304,
+      "acc_treino": 0.8536045385360453,
+      "perda_val": 0.35774919390678406,
+      "acc_val": 0.8847283406754772,
+      "f1_macro_val": 0.8585654532841172
+    },
+    {
+      "etapa": 1,
+      "epoca": 6,
+      "perda_treino": 0.4167581049835466,
+      "acc_treino": 0.8551266085512661,
+      "perda_val": 0.33568382263183594,
+      "acc_val": 0.8909691629955947,
+      "f1_macro_val": 0.8634728352819785
+    },
+    {
+      "etapa": 2,
+      "epoca": 7,
+      "perda_treino": 0.47561530645158884,
+      "acc_treino": 0.8410128684101287,
+      "perda_val": 0.5939390659332275,
+      "acc_val": 0.8135095447870778,
+      "f1_macro_val": 0.8118636684949327
+    },
+    {
+      "etapa": 2,
+      "epoca": 8,
+      "perda_treino": 0.2678861547196012,
+      "acc_treino": 0.9066002490660025,
+      "perda_val": 0.26258885860443115,
+      "acc_val": 0.906754772393539,
+      "f1_macro_val": 0.8873952836825441
+    },
+    {
+      "etapa": 2,
+      "epoca": 9,
+      "perda_treino": 0.20379285238476005,
+      "acc_treino": 0.9251418292514183,
+      "perda_val": 0.13997313380241394,
+      "acc_val": 0.9537444933920705,
+      "f1_macro_val": 0.9410296937148594
+    },
+    {
+      "etapa": 2,
+      "epoca": 10,
+      "perda_treino": 0.16812456120694758,
+      "acc_treino": 0.9382869793828698,
+      "perda_val": 0.20279814302921295,
+      "acc_val": 0.9251101321585903,
+      "f1_macro_val": 0.9062495295651466
+    },
+    {
+      "etapa": 2,
+      "epoca": 11,
+      "perda_treino": 0.1284074407847686,
+      "acc_treino": 0.9554448595544486,
+      "perda_val": 0.15315738320350647,
+      "acc_val": 0.9530102790014684,
+      "f1_macro_val": 0.9413362564787169
+    },
+    {
+      "etapa": 2,
+      "epoca": 12,
+      "perda_treino": 0.10140899563589927,
+      "acc_treino": 0.9619482496194824,
+      "perda_val": 0.1505936235189438,
+      "acc_val": 0.948237885462555,
+      "f1_macro_val": 0.9355186807026568
+    }
+  ]
+}

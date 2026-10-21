@@ -1,0 +1,43 @@
+{
+  "planta": "milho",
+  "semente": 42,
+  "proporcao": {
+    "treino": 0.7,
+    "validacao": 0.15,
+    "teste": 0.15
+  },
+  "max_treino_por_classe": null,
+  "fonte": "PlantVillage (raw/color) – github.com/spMohanty/PlantVillage-Dataset",
+  "contagem": {
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+      "treino": 359,
+      "validacao": 77,
+      "teste": 77,
+      "total": 513
+    },
+    "Corn_(maize)___Common_rust_": {
+      "treino": 834,
+      "validacao": 179,
+      "teste": 179,
+      "total": 1192
+    },
+    "Corn_(maize)___Northern_Leaf_Blight": {
+      "treino": 690,
+      "validacao": 147,
+      "teste": 148,
+      "total": 985
+    },
+    "Corn_(maize)___healthy": {
+      "treino": 813,
+      "validacao": 175,
+      "teste": 174,
+      "total": 1162
+    },
+    "total": {
+      "treino": 2696,
+      "validacao": 578,
+      "teste": 578,
+      "total": 3852
+    }
+  }
+}

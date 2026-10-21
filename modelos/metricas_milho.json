@@ -1,0 +1,238 @@
+{
+  "planta": "milho",
+  "versao": "v1",
+  "arquitetura": "MobileNetV2 (ImageNet, transferência de aprendizado)",
+  "treinado_em": "2026-10-21T20:10:17.121157+00:00",
+  "classes": [
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+    "Corn_(maize)___Common_rust_",
+    "Corn_(maize)___Northern_Leaf_Blight",
+    "Corn_(maize)___healthy"
+  ],
+  "limiar": 0.69,
+  "ambiente": {
+    "plataforma": "cpu",
+    "torch": "2.14.1+cpu",
+    "threads": 8,
+    "tempo_total_min": 8.7
+  },
+  "divisao": {
+    "treino": 2696,
+    "treino_usado": 2696,
+    "validacao": 578,
+    "teste": 578,
+    "proporcao": "70/15/15 estratificada",
+    "semente": 42,
+    "arquivo_treino": "treino.csv"
+  },
+  "hiperparametros": {
+    "lote": 32,
+    "epocas_etapa1": 6,
+    "lr_etapa1": 0.001,
+    "epocas_etapa2": 6,
+    "lr_etapa2": 0.0001,
+    "blocos_descongelados_etapa2": 5,
+    "otimizador": "Adam",
+    "weight_decay": 0.0001,
+    "dropout": 0.2,
+    "tamanho_entrada": 224,
+    "semente": 42,
+    "pesos_classe": "inverso da frequência",
+    "treino_csv": "treino.csv"
+  },
+  "melhor_epoca_validacao": 12,
+  "teste": {
+    "acuracia": 0.9705882352941176,
+    "precisao_macro": 0.9647238362385627,
+    "revocacao_macro": 0.9525930150930151,
+    "f1_macro": 0.9578600047075398,
+    "f1_ponderado": 0.9701720521407207,
+    "por_classe": {
+      "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+        "precisao": 0.9420289855072463,
+        "revocacao": 0.8441558441558441,
+        "f1": 0.8904109589041096,
+        "suporte": 77
+      },
+      "Corn_(maize)___Common_rust_": {
+        "precisao": 1.0,
+        "revocacao": 1.0,
+        "f1": 1.0,
+        "suporte": 179
+      },
+      "Corn_(maize)___Northern_Leaf_Blight": {
+        "precisao": 0.9225806451612903,
+        "revocacao": 0.9662162162162162,
+        "f1": 0.9438943894389439,
+        "suporte": 148
+      },
+      "Corn_(maize)___healthy": {
+        "precisao": 0.9942857142857143,
+        "revocacao": 1.0,
+        "f1": 0.997134670487106,
+        "suporte": 174
+      }
+    },
+    "com_limiar": {
+      "cobertura": 0.972318339100346,
+      "acuracia_aceitas": 0.9822064056939501
+    }
+  },
+  "validacao": {
+    "acuracia": 0.9740484429065744,
+    "f1_macro": 0.9629655916420622
+  },
+  "matriz_confusao": {
+    "classes": [
+      "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+      "Corn_(maize)___Common_rust_",
+      "Corn_(maize)___Northern_Leaf_Blight",
+      "Corn_(maize)___healthy"
+    ],
+    "valores": [
+      [
+        65,
+        0,
+        12,
+        0
+      ],
+      [
+        0,
+        179,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        143,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        174
+      ]
+    ],
+    "linhas": "real",
+    "colunas": "prevista"
+  },
+  "onnx": {
+    "arquivo": "modelos/milho.onnx",
+    "entrada": "input (lote, 3, 224, 224) float32, ImageNet",
+    "saida": "logits (lote, 4) – aplicar softmax",
+    "dif_max_vs_pytorch": 1.5795230865478516e-06,
+    "concordancia_vs_pytorch": "578/578"
+  },
+  "historico": [
+    {
+      "etapa": 1,
+      "epoca": 1,
+      "perda_treino": 0.5592426276083162,
+      "acc_treino": 0.8219584569732937,
+      "perda_val": 0.2762663960456848,
+      "acc_val": 0.9429065743944637,
+      "f1_macro_val": 0.9232041736151388
+    },
+    {
+      "etapa": 1,
+      "epoca": 2,
+      "perda_treino": 0.28584434317552015,
+      "acc_treino": 0.9169139465875371,
+      "perda_val": 0.22543570399284363,
+      "acc_val": 0.9307958477508651,
+      "f1_macro_val": 0.9075712796972581
+    },
+    {
+      "etapa": 1,
+      "epoca": 3,
+      "perda_treino": 0.24538983656673827,
+      "acc_treino": 0.9258160237388724,
+      "perda_val": 0.2215540111064911,
+      "acc_val": 0.9463667820069204,
+      "f1_macro_val": 0.9234862574820051
+    },
+    {
+      "etapa": 1,
+      "epoca": 4,
+      "perda_treino": 0.22193407212613422,
+      "acc_treino": 0.9328635014836796,
+      "perda_val": 0.18925920128822327,
+      "acc_val": 0.9359861591695502,
+      "f1_macro_val": 0.9144888171344245
+    },
+    {
+      "etapa": 1,
+      "epoca": 5,
+      "perda_treino": 0.19133172809900797,
+      "acc_treino": 0.9428783382789317,
+      "perda_val": 0.18911564350128174,
+      "acc_val": 0.9394463667820069,
+      "f1_macro_val": 0.9186287303809222
+    },
+    {
+      "etapa": 1,
+      "epoca": 6,
+      "perda_treino": 0.1887090456857172,
+      "acc_treino": 0.9399109792284867,
+      "perda_val": 0.195371612906456,
+      "acc_val": 0.9532871972318339,
+      "f1_macro_val": 0.934597239077863
+    },
+    {
+      "etapa": 2,
+      "epoca": 7,
+      "perda_treino": 0.2934834936561853,
+      "acc_treino": 0.905786350148368,
+      "perda_val": 0.36412933468818665,
+      "acc_val": 0.9377162629757786,
+      "f1_macro_val": 0.9016112974113619
+    },
+    {
+      "etapa": 2,
+      "epoca": 8,
+      "perda_treino": 0.17482938433966932,
+      "acc_treino": 0.9417655786350149,
+      "perda_val": 0.09946122765541077,
+      "acc_val": 0.967128027681661,
+      "f1_macro_val": 0.9553235584361714
+    },
+    {
+      "etapa": 2,
+      "epoca": 9,
+      "perda_treino": 0.1372748747888057,
+      "acc_treino": 0.9584569732937686,
+      "perda_val": 0.10281219333410263,
+      "acc_val": 0.9705882352941176,
+      "f1_macro_val": 0.9596662209284275
+    },
+    {
+      "etapa": 2,
+      "epoca": 10,
+      "perda_treino": 0.11729934685849737,
+      "acc_treino": 0.9591988130563798,
+      "perda_val": 0.09715653210878372,
+      "acc_val": 0.9636678200692042,
+      "f1_macro_val": 0.9531026828146851
+    },
+    {
+      "etapa": 2,
+      "epoca": 11,
+      "perda_treino": 0.09987090458369396,
+      "acc_treino": 0.9699554896142433,
+      "perda_val": 0.1425391435623169,
+      "acc_val": 0.9515570934256056,
+      "f1_macro_val": 0.9428746394287606
+    },
+    {
+      "etapa": 2,
+      "epoca": 12,
+      "perda_treino": 0.11527729275683356,
+      "acc_treino": 0.9647626112759644,
+      "perda_val": 0.09417065978050232,
+      "acc_val": 0.9740484429065744,
+      "f1_macro_val": 0.9629655916420622
+    }
+  ]
+}
