@@ -9,6 +9,7 @@ Entrega do PjBL2 (Sistemas de Informação Inteligentes, PUCPR): um modelo de vi
 |---|---|
 | `notebooks/01_treino_culturas.ipynb` + `notebooks/gerar_notebook.py` | **Notebook principal de treino da equipe** (Ítalo), para o Google Colab, com as 3 culturas. Não foi alterado. |
 | `notebooks/execucao/{batata,milho,tomate}.ipynb` | **Execuções reais**, com saídas salvas, que **geraram os modelos e as métricas versionados em `modelos/`**. Foram executados ponta a ponta em CPU. São gerados por `notebooks/execucao/gerar_notebooks.py`. |
+| `notebooks/execucao/batata_kfold.ipynb` | Validação cruzada **5-fold** da batata (complementar; o teste original fica de fora). Gerado por `notebooks/execucao/gerar_notebook_kfold.py`. Resultados em `modelos/kfold_batata.json` e `modelos/kfold_batata.png`. |
 | `scripts/baixar_dados.sh` | Baixa o PlantVillage `color` (commit fixo) das 3 plantas. |
 | `scripts/preparar_dados.py` | Divisão 70/15/15 (semente 42) por planta. Também gera `modelos/<planta>.classes.json`. |
 | `scripts/especificidade.py` | Especificidade por classe (um-contra-todos) e macro, a partir das matrizes de confusão de teste salvas. |
@@ -129,6 +130,40 @@ O F1 macro de validação do tomate subiu de 0,86 (fim da etapa 1) para 0,94 (é
 
 As curvas de treino estão em `modelos/curvas_treino_<planta>.png`.
 
+### Validação cruzada 5-fold na batata (Aula 03, p. 26)
+O *holdout* acima mede o desempenho em **uma** divisão dos dados. Para saber se esse número depende da "sorte" da divisão, repetimos o treino da batata com **validação cruzada estratificada em 5 partes (5-fold)**. Os arquivos são `notebooks/execucao/batata_kfold.ipynb` (executado, gerado por `gerar_notebook_kfold.py`), `modelos/kfold_batata.json` e `modelos/kfold_batata.png`.
+
+**Protocolo:**
+- **Teste original fora:** os 15% de teste (323 imagens) ficaram **de fora e intocados**. Continuam sendo o *holdout* final, usado uma única vez, e o notebook confere que nenhuma imagem do teste entra nos folds.
+- **Folds:** treino + validação (1.829 imagens, 85%) foram divididos em 5 folds estratificados com semente 42. Imagens com o mesmo MD5 ficam no mesmo fold.
+- **Treino de cada fold:** 4 folds treinam (cerca de 1.463 imagens) e 1 fold valida (cerca de 366). A receita é **a mesma** do *holdout*, com as **12 épocas completas** (6 + 6), sem redução:
+  - MobileNetV2 da ImageNet em 2 etapas;
+  - aumento de dados só nos folds de treino;
+  - pesos de classe calculados em cada fold de treino;
+  - melhor época escolhida pelo F1 macro no fold de validação.
+- **Tempo:** 29,1 min em CPU (8 threads), de 4,3 a 8,4 min por fold.
+
+| Fold | Melhor época | Acurácia | Precisão macro | Revocação macro | F1 macro | Especificidade macro |
+|---|---|---|---|---|---|---|
+| 1 | 8 | 0,9918 | 0,9942 | 0,9833 | 0,9886 | 0,9949 |
+| 2 | 12 | 0,9945 | 0,9857 | 0,9961 | 0,9908 | 0,9973 |
+| 3 | 9 | 0,9945 | 0,9961 | 0,9961 | 0,9961 | 0,9966 |
+| 4 | 12 | 1,0000 | 1,0000 | 1,0000 | 1,0000 | 1,0000 |
+| 5 | 12 | 0,9973 | 0,9981 | 0,9980 | 0,9980 | 0,9983 |
+| **Média ± dp** | — | **0,9956 ± 0,0031** | **0,9948 ± 0,0055** | **0,9947 ± 0,0066** | **0,9947 ± 0,0049** | **0,9974 ± 0,0019** |
+| *Holdout* (teste original) | 12 | 0,9969 | 0,9861 | 0,9978 | 0,9918 | 0,9989 |
+
+![Validação cruzada batata](../modelos/kfold_batata.png)
+
+**O que a validação cruzada mostra:**
+- **O modelo é estável entre divisões.** A acurácia varia de 0,992 a 1,000 entre os 5 folds (desvio-padrão 0,003) e o F1 macro de 0,989 a 1,000 (dp 0,005). Nenhum fold foi muito pior que os outros.
+- **Concorda com o *holdout*.** A acurácia, a revocação, o F1 macro e a especificidade do teste original caem dentro da faixa média ± dp dos folds, então o resultado entregue não foi uma divisão "de sorte".
+- **A precisão macro do *holdout* (0,986) fica um pouco abaixo da faixa.** No teste há uma única folha com requeima prevista como saudável, e a classe saudável tem só 23 imagens: um erro derruba a precisão dessa classe para 0,958 e puxa a média macro. Nos folds acontece o mesmo efeito (folds 1 e 2, F1 da classe saudável em 0,98). É a limitação de "classes pequenas" (§7), e não instabilidade do modelo.
+- **Os erros são poucos e do mesmo tipo.** Somando os 5 folds, cada imagem foi avaliada uma vez por um modelo que não a viu no treino. Foram **8 erros em 1.829 imagens** (0,44%): 6 entre pinta-preta e requeima e 2 envolvendo a classe saudável. No *holdout* foi 1 erro em 323 (0,31%).
+- **Escolher a época pela validação importa (§9.2).** Também medimos a **última época (12)**, sem nenhuma escolha. Nela a média cai para F1 0,9846 ± 0,0184. No fold 1, a melhor época foi a 8 (F1 0,989) e a última deu 0,955: o ajuste fino oscilou no fim, e guardar a melhor época evitou essa queda.
+- **Leitura honesta:** o fold que escolhe a época é o mesmo que mede as métricas, o que deixa a média de 0,9947 levemente otimista. A estimativa independente continua sendo o teste original. A validação cruzada avalia a **receita** de treino (5 modelos); o modelo entregue (`batata.onnx`) é o do *holdout*, que não foi alterado.
+- **Escopo:** a validação cruzada foi feita só na batata. No tomate ela custaria cerca de 5 × 28 min em CPU.
+
 ## 5. Limiar de confiança (calibrado na validação) × app
 - **Regra (a mesma nas 3 plantas):** entre os limiares com cobertura ≥ 97% na validação, escolhe-se o de maior acurácia das fotos aceitas; em caso de empate, o maior.
 - **Resultado:** batata **0,98**, milho **0,69**, tomate **0,63**.
@@ -170,6 +205,7 @@ bash scripts/baixar_dados.sh                 # batata, milho e tomate (~440 MB)
 python scripts/preparar_dados.py             # divisões 70/15/15 (semente 42) + modelos/<planta>.classes.json
 cd notebooks/execucao
 for p in batata milho tomate; do jupyter nbconvert --to notebook --execute --inplace $p.ipynb; done
+jupyter nbconvert --to notebook --execute --inplace batata_kfold.ipynb   # validação cruzada 5-fold (≈ 30 min em CPU)
 cd ../.. && python scripts/especificidade.py   # especificidade por classe e macro (Aula 03, p. 29)
 ```
 
@@ -210,7 +246,7 @@ O *holdout* dos slides divide a base em **treino (65%)** e **teste/validação (
 
 Se escolhêssemos a época ou o limiar olhando o teste, a informação do teste "vazaria" para o modelo e as métricas sairiam otimistas. Com 15% para cada conjunto, o teste ainda tem 323 (batata), 578 (milho) e 2.724 (tomate) imagens.
 
-A divisão é **estratificada**, mantendo a proporção de cada classe, e usa **semente fixa** (42), o que a torna reprodutível. A **validação cruzada (k-fold)** da Aula 03, p. 26 daria uma estimativa mais estável, mas custaria k treinamentos (cerca de 2,5 h só para o tomate em CPU). Fica como trabalho futuro.
+A divisão é **estratificada**, mantendo a proporção de cada classe, e usa **semente fixa** (42), o que a torna reprodutível. A **validação cruzada (k-fold)** da Aula 03, p. 26 foi feita **na batata** como complemento: 5 folds sobre os 85% de treino + validação, com o teste original intocado (§4, "Validação cruzada 5-fold na batata"). Ela deu F1 macro 0,9947 ± 0,0049, coerente com o *holdout* (0,9918). Não substitui o *holdout*: ela avalia a estabilidade da receita, e o teste avalia o modelo entregue. No milho e no tomate ela não foi feita por tempo de CPU (no tomate, cerca de 5 × 28 min).
 
 ### 9.4 As camadas da CNN da Aula 05 dentro da MobileNetV2
 A Aula 05 (p. 13–32) apresenta a CNN como **convolução → ReLU → pooling → flatten → rede densa**. Ela chama a parte convolucional de "pré-processamento" (extrai características) e a parte densa de classificador. Na MobileNetV2 (`torchvision`, 19 blocos em `features` + `classifier`):
