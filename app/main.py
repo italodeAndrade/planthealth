@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 import ollama
 from app.bd_nosql import (
     DB_NAME,
+    listar_mensagens_chat,
     obter_cliente,
     salvar_atualizacao_nosql,
     salvar_mensagem_chat,
@@ -222,7 +223,12 @@ async def get_detalhes_plantio(plantio_id: int):
         raise HTTPException(status_code=404, detail="Plantio não encontrado")
 
     historico = obter_historico(plantio_id)
-    mensagens = listar_mensagens(plantio_id)
+    # 1. Tenta carregar histórico de mensagens primariamente do MongoDB (NoSQL)
+    mensagens = listar_mensagens_chat(plantio_id)
+    # 2. Fallback para SQLite relacional se MongoDB indisponível ou vazio
+    if not mensagens:
+        mensagens = listar_mensagens(plantio_id)
+
     return {
         "plantio": plantio,
         "historico": historico,
@@ -329,8 +335,9 @@ async def enviar_atualizacao_semanal(
     salvar_mensagem_chat(
         plantio_id=plantio_id,
         papel="assistente",
-        texto=relatorio,
+        texto=f"🌱 **Atualização da Semana {semana} ({status.upper()}):**\n\n{relatorio}",
         atualizacao_id=atualizacao_id,
+        fotos=fotos_processadas,
     )
 
     return {

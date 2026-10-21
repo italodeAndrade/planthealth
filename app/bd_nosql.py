@@ -72,10 +72,12 @@ def salvar_mensagem_chat(
     papel: str,
     texto: str,
     atualizacao_id: Optional[Any] = None,
+    fotos: Optional[List[Dict[str, Any]]] = None,
 ) -> Optional[str]:
     """
     Insere mensagem de chat na coleção 'mensagens' do MongoDB (Seção 3.2 do ABNT).
-    Salva 'plantio_id_sqlite' para amarrar a conversa à entidade relacional.
+    Salva 'plantio_id_sqlite' para amarrar a conversa à entidade relacional
+    e armazena as 'fotos' analisadas diretamente no documento NoSQL.
     """
     bd = obter_bd()
     if bd is None:
@@ -89,6 +91,7 @@ def salvar_mensagem_chat(
             "atualizacao_id": atualizacao_id,
             "papel": papel,
             "texto": texto,
+            "fotos": fotos or [],
             "criado_em": datetime.now(timezone.utc),
         }
         res = bd.mensagens.insert_one(doc)
@@ -96,6 +99,59 @@ def salvar_mensagem_chat(
     except Exception as e:
         print(f"[AVISO MONGO] Erro ao salvar mensagem no MongoDB: {e}")
         return None
+
+
+def listar_mensagens_chat(plantio_id: Any) -> List[Dict[str, Any]]:
+    """
+    Recupera todo o histórico de mensagens de chat de um plantio diretamente do MongoDB.
+    Garante enriquecimento das fotos para mensagens de diagnóstico.
+    """
+    bd = obter_bd()
+    if bd is None:
+        return []
+
+    try:
+        pid = int(plantio_id) if str(plantio_id).isdigit() else plantio_id
+        cursor = bd.mensagens.find(
+            {"$or": [{"plantio_id": pid}, {"plantio_id_sqlite": pid}]}
+        ).sort("criado_em", 1)
+
+        mensagens = []
+        for doc in cursor:
+            criado_em = doc.get("criado_em")
+            if isinstance(criado_em, datetime):
+                data_str = criado_em.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                data_str = str(criado_em or "")
+
+            fotos = doc.get("fotos") or []
+            # Se a mensagem for de uma atualização e não tiver fotos salvas no doc,
+            # busca na coleção atualizacoes do MongoDB
+            if not fotos and doc.get("atualizacao_id"):
+                at_id = doc.get("atualizacao_id")
+                at_doc = bd.atualizacoes.find_one({
+                    "$or": [
+                        {"_id": at_id if isinstance(at_id, ObjectId) else None},
+                        {"semana": at_id if isinstance(at_id, int) else None},
+                        {"plantio_id": pid, "semana": at_id if isinstance(at_id, int) else None}
+                    ]
+                })
+                if at_doc and at_doc.get("fotos"):
+                    fotos = at_doc.get("fotos")
+
+            mensagens.append({
+                "id": str(doc["_id"]),
+                "plantio_id": pid,
+                "atualizacao_id": doc.get("atualizacao_id"),
+                "papel": doc.get("papel"),
+                "texto": doc.get("texto"),
+                "criado_em": data_str,
+                "fotos": fotos,
+            })
+        return mensagens
+    except Exception as e:
+        print(f"[AVISO MONGO] Erro ao listar mensagens no MongoDB: {e}")
+        return []
 
 
 def salvar_log_treino_colab(dados_treino: Dict[str, Any]) -> Optional[str]:
